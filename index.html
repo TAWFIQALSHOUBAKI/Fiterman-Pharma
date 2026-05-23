@@ -509,8 +509,8 @@ body.light select{border-color:#E2E5EB!important;background:#fff!important;color
       Overview
     </button>
     <button class="tab-btn" onclick="setTab('weekly',this)">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      Weekly
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+      By Ad Set
     </button>
     <button class="tab-btn" onclick="setTab('creative',this)">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -521,8 +521,8 @@ body.light select{border-color:#E2E5EB!important;background:#fff!important;color
       Audience
     </button>
     <button class="tab-btn" onclick="setTab('bypage',this)">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-      By Ad Set
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v4H4z"/><path d="M4 12h8v8H4z"/><path d="M16 12h4v3h-4z"/><path d="M16 19h4v1h-4z"/></svg>
+      By Page
     </button>
     <div class="tabbar-right">
       <span class="tab-meta" id="tab-meta"></span>
@@ -650,55 +650,14 @@ body.light select{border-color:#E2E5EB!important;background:#fff!important;color
     </div>
   </div>
 
-  <!-- ════ WEEKLY PAGE ════ -->
+  <!-- ════ BY AD SET PAGE (was Weekly) ════ -->
   <div class="page" id="page-weekly">
     <div class="shead">
-      <div class="shead-eyebrow">Time Series</div>
-      <div class="shead-title">Weekly Performance</div>
-      <div class="shead-sub" id="weekly-sub">May 10, 2026 – May 17, 2026</div>
+      <div class="shead-eyebrow">Deep Dive</div>
+      <div class="shead-title">Breakdown by Ad Set</div>
+      <div class="shead-sub">Full performance snapshot per ad set — age, gender, creatives and spend</div>
     </div>
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-label">Spend per Week</div>
-        <div class="chart-wrap"><canvas id="chart-weekly-spend" height="210"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-label">Results per Week</div>
-        <div class="chart-wrap"><canvas id="chart-weekly-results" height="210"></canvas></div>
-      </div>
-    </div>
-    <div class="table-wrap mb-24">
-      <table id="table-weekly"></table>
-    </div>
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-        <div class="card-label" style="margin-bottom:0" id="trend-chart-label">Cost Per Result — Day over Day</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-          <!-- Metric selector -->
-          <select id="trend-metric" onchange="updateTrendChart()" style="padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.12);background:#161927;color:#ffffff;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;outline:none">
-            <option value="cpr">Cost per Result</option>
-            <option value="results">Post Engagements</option>
-            <option value="engrate">CTR (Eng. Rate %)</option>
-            <option value="frequency">Frequency</option>
-          </select>
-          <!-- Campaign selector (always one campaign but keeps pattern) -->
-          <select id="trend-campaign" onchange="updateTrendChart()" style="padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.12);background:#161927;color:#ffffff;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;outline:none">
-            <option value="">All Campaigns</option>
-            <option value="Engagements_Fiterman_">Engagements_Fiterman_</option>
-          </select>
-          <!-- Ad Set selector -->
-          <select id="trend-adset" onchange="updateTrendChart()" style="padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.12);background:#161927;color:#ffffff;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;outline:none">
-            <option value="">All Ad Sets</option>
-          </select>
-          <!-- Ad selector -->
-          <select id="trend-ad" onchange="updateTrendChart()" style="padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.12);background:#161927;color:#ffffff;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;outline:none">
-            <option value="">All Ads</option>
-          </select>
-        </div>
-      </div>
-      <div class="chart-wrap"><canvas id="chart-weekly-cpr" height="180"></canvas></div>
-      <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:16px" id="weekly-cpr-legend"></div>
-    </div>
+    <div id="byadset-content"></div>
   </div>
 
   <!-- ════ CREATIVE PAGE ════ -->
@@ -800,12 +759,12 @@ body.light select{border-color:#E2E5EB!important;background:#fff!important;color
     </div>
   </div>
 
-  <!-- ════ BY AD SET PAGE ════ -->
+  <!-- ════ BY PAGE PAGE ════ -->
   <div class="page" id="page-bypage">
     <div class="shead">
       <div class="shead-eyebrow">Deep Dive</div>
-      <div class="shead-title">Breakdown by Ad Set</div>
-      <div class="shead-sub">Full performance snapshot per ad set — age, gender, creatives and spend</div>
+      <div class="shead-title">Breakdown by Page</div>
+      <div class="shead-sub">Performance grouped by Facebook Page — spend, results, age and gender breakdown</div>
     </div>
     <div id="bypage-content"></div>
   </div>
@@ -985,7 +944,29 @@ function computeData(since, until) {
     adsAudience[k] = ageOrder.filter(s=>byA[s]).map(s=>({ seg:s, ...agg(byA[s]) }));
   });
 
-  return { core, daily, weekly, adsets, ads, age, gender, ageByAdset, genderByAdset, adsAudience };
+  // Pages (by Facebook Page name)
+  const byPageName = groupBy(rows, 'page');
+  const pages = Object.keys(byPageName).filter(Boolean).map(name => ({
+    name, ...agg(byPageName[name])
+  })).sort((a,b) => b.spend - a.spend);
+
+  // Age by page
+  const ageByPage = {};
+  Object.keys(byPageName).filter(Boolean).forEach(pg => {
+    const byA = groupBy(byPageName[pg], 'age');
+    ageByPage[pg] = ageOrder.filter(s=>byA[s]).map(s=>({ seg:s, ...agg(byA[s]) }));
+  });
+
+  // Gender by page
+  const genderByPage = {};
+  Object.keys(byPageName).filter(Boolean).forEach(pg => {
+    const byG = groupBy(byPageName[pg], 'gender');
+    genderByPage[pg] = genderOrder.filter(s=>byG[s]).map(s=>({
+      seg: s.charAt(0).toUpperCase()+s.slice(1), ...agg(byG[s])
+    }));
+  });
+
+  return { core, daily, weekly, adsets, ads, age, gender, ageByAdset, genderByAdset, adsAudience, pages, ageByPage, genderByPage };
 }
 
 // ══ SYNC DATE RANGE FROM RAW_DATA ══════════════════════════════════════════════
@@ -1179,35 +1160,6 @@ function initCharts() {
     }}
   });
 
-  // ── Weekly tab charts ─────────────────────────────────────────────────────
-  charts.weeklySpend = new Chart(document.getElementById('chart-weekly-spend'), {
-    type:'bar',
-    data:{ labels:D.weekly.map(w=>w.week), datasets:[{ label:'Spend ($)', data:D.weekly.map(w=>w.spend), backgroundColor:'#E8410A', borderRadius:4, barPercentage:.5 }] },
-    options: chartOpts()
-  });
-  charts.weeklyResults = new Chart(document.getElementById('chart-weekly-results'), {
-    type:'bar',
-    data:{ labels:D.weekly.map(w=>w.week), datasets:[{ label:'Results', data:D.weekly.map(w=>w.results), backgroundColor: document.body.classList.contains('light')?'#0D2445':'rgba(255,255,255,.7)', borderRadius:4, barPercentage:.5 }] },
-    options:{...chartOpts(), scales:{
-      x:{ grid:{display:false}, border:{display:false}, ticks:{color:tickColor()} },
-      y:{ grid:{color:gridColor()}, border:{display:false}, ticks:{color:tickColor(),callback:v=>fnK(v)} },
-    }}
-  });
-  const cprMin = Math.min(...D.weekly.map(w=>w.cpr).filter(Boolean)) * 0.98;
-  const cprMax = Math.max(...D.weekly.map(w=>w.cpr).filter(Boolean)) * 1.02;
-  charts.weeklyCPR = new Chart(document.getElementById('chart-weekly-cpr'), {
-    type:'line',
-    data:{ labels:[], datasets:[{ label:'', data:[], borderColor:'#0A7C52', backgroundColor:'rgba(10,124,82,.1)', borderWidth:2.5, pointRadius:5, pointBackgroundColor:'#0A7C52', fill:true, tension:.3 }] },
-    options:{...chartOpts(), scales:{
-      x:{ grid:{display:false}, border:{display:false}, ticks:{color:tickColor()} },
-      y:{ grid:{color:gridColor()}, border:{display:false}, ticks:{color:tickColor()} },
-    }}
-  });
-
-  // Populate entity dropdowns
-  populateTrendDropdowns();
-  // Draw initial state
-  updateTrendChart();
 
   // ── Ads horizontal bar ────────────────────────────────────────────────────
   function adLabel(a, maxLen=22) {
@@ -1258,12 +1210,6 @@ function initCharts() {
   });
 
   // ── Tables ────────────────────────────────────────────────────────────────
-  const tCols = [
-    {k:'week',label:'Period'},{k:'spend',label:'Spend',fmt:f$,r:true},
-    {k:'results',label:'Results',fmt:fn,r:true},{k:'impressions',label:'Impressions',fmt:fn,r:true},
-    {k:'reach',label:'Reach',fmt:fn,r:true},{k:'cpr',label:'Cost/Result',fmt:f$4,r:true},
-  ];
-  buildTable('table-weekly', tCols, D.weekly, 'cpr');
   buildTable('table-ads', [
     {k:'name',label:'Ad Creative'},{k:'adset',label:'Ad Set'},
     {k:'spend',label:'Spend',fmt:f$,r:true},{k:'results',label:'Results',fmt:fn,r:true},
@@ -1285,7 +1231,9 @@ function initCharts() {
   initAdAudienceSelect();
 
   // ── By Ad Set tab ─────────────────────────────────────────────────────────
-  renderPageTab();
+  renderAdsetTab();
+  // ── By Page tab ───────────────────────────────────────────────────────────
+  renderByPageTab();
 }
 
 function destroyCharts() {
@@ -1434,7 +1382,6 @@ function applyDateRange() {
   if(mobEl){ const s=prettyDate(since).replace(', 2026',''), u=prettyDate(until).replace(', 2026',''); mobEl.textContent=`${s} – ${u}`; }
   document.getElementById('header-range').textContent = `fiterman-pharma.com ·${label} · ${CAMPAIGN_META.goal}`;
   document.getElementById('notice-range').textContent = `Reporting period: ${label}`;
-  document.getElementById('weekly-sub').textContent = `${label}`;
   document.getElementById('footer-range').textContent = `${label} · ${fn(D.core.results)} engagements · No estimated values`;
   // Reset view toggles
   currentAgeFilter = 'all';
@@ -1826,12 +1773,12 @@ function toggleTheme() {
 // ══ BOOT ══════════════════════════════════════════════════════════════════════
 
 // ══ BY AD SET TAB ════════════════════════════════════════════════════════════
-function renderPageTab() {
-  const container = document.getElementById('bypage-content');
+function renderAdsetTab() {
+  const container = document.getElementById('byadset-content');
   if (!container) return;
 
-  // Destroy any existing bypage charts
-  Object.keys(charts).filter(k=>k.startsWith('bypage_')).forEach(k=>{ charts[k]&&charts[k].destroy(); delete charts[k]; });
+  // Destroy any existing byadset charts
+  Object.keys(charts).filter(k=>k.startsWith('byadset_')).forEach(k=>{ charts[k]&&charts[k].destroy(); delete charts[k]; });
 
   const adNameCounts = D.ads.reduce((m,a)=>(m[a.name]=(m[a.name]||0)+1,m), {});
 
@@ -1898,7 +1845,7 @@ function renderPageTab() {
       <div class="grid-2 mb-18">
         <div class="card">
           <div class="card-label">Results by Age — CPR Ranked</div>
-          <div style="height:180px;margin-bottom:14px"><canvas id="bypage-age-chart-${idx}"></canvas></div>
+          <div style="height:180px;margin-bottom:14px"><canvas id="byadset-age-chart-${idx}"></canvas></div>
           <div>${ageRankHTML||'<span style="font-size:12px;color:rgba(255,255,255,.4)">No age data</span>'}</div>
         </div>
         <div class="card">
@@ -1930,9 +1877,145 @@ function renderPageTab() {
 
   // Draw age charts
   D.adsets.forEach((as, idx) => {
-    const canvas = document.getElementById(`bypage-age-chart-${idx}`);
+    const canvas = document.getElementById(`byadset-age-chart-${idx}`);
     if (!canvas) return;
     const data = D.ageByAdset[as.name] || [];
+    charts[`byadset_age_${idx}`] = new Chart(canvas, {
+      type: 'bar',
+      data: { labels: data.map(a=>a.seg), datasets: [
+        { label:'Results', data:data.map(a=>a.results), backgroundColor:'#E8410A', borderRadius:4, barPercentage:.5 },
+        { label:'Spend',   data:data.map(a=>a.spend),   backgroundColor: document.body.classList.contains('light')?'#0D2445':'rgba(255,255,255,.2)', borderRadius:4, barPercentage:.5 },
+      ]},
+      options: { ...chartOpts(), scales: {
+        x: { grid:{display:false}, border:{display:false}, ticks:{color:tickColor()} },
+        y: { grid:{color:gridColor()}, border:{display:false}, ticks:{color:tickColor(),callback:v=>fnK(v)} },
+      }}
+    });
+  });
+}
+
+// ══ BY PAGE TAB ══════════════════════════════════════════════════════════════
+function renderByPageTab() {
+  const container = document.getElementById('bypage-content');
+  if (!container) return;
+
+  // Destroy any existing bypage charts
+  Object.keys(charts).filter(k=>k.startsWith('bypage_')).forEach(k=>{ charts[k]&&charts[k].destroy(); delete charts[k]; });
+
+  if (!D.pages || !D.pages.length) {
+    container.innerHTML = '<div style="padding:40px;text-align:center;color:rgba(255,255,255,.4);font-size:13px">No Page data available — make sure the CSV includes a <code>Page name</code> column.</div>';
+    return;
+  }
+
+  const adNameCounts = D.ads.reduce((m,a)=>(m[a.name]=(m[a.name]||0)+1,m), {});
+
+  // Build page→adKey set from filtered rows
+  const filteredRows = filterRows(currentRange.since, currentRange.until);
+  const adKeysByPage = {};
+  filteredRows.forEach(r => {
+    if (!r.page) return;
+    (adKeysByPage[r.page] = adKeysByPage[r.page] || new Set()).add(r.ad + '|||' + r.adset);
+  });
+
+  container.innerHTML = D.pages.map((pg, idx) => {
+    const ageData    = D.ageByPage[pg.name]    || [];
+    const genderData = D.genderByPage[pg.name] || [];
+    const pgAdKeys   = adKeysByPage[pg.name] || new Set();
+    const pgAds = D.ads.filter(a => pgAdKeys.has(a.name + '|||' + a.adset));
+    const pct = D.core.spend > 0 ? fpct(pg.spend / D.core.spend * 100) : '—';
+
+    const maxAge = Math.max(...ageData.map(a=>a.results), 1);
+    const ageRankHTML = [...ageData].sort((a,b)=>(a.cpr||99)-(b.cpr||99)).map((a,i)=>`
+      <div class="age-rank-row">
+        <span class="age-seg">${a.seg}</span>
+        <div class="age-bar-wrap"><div class="age-bar" style="width:${Math.round(a.results/maxAge*100)}%;background:${i===0?'#0A7C52':'#E8410A'}"></div></div>
+        <span class="age-cpr" style="color:${i===0?'#0A7C52':'rgba(255,255,255,.8)'}">${f$4(a.cpr)}</span>
+        ${i===0?'<span class="chip" style="color:#0A7C52;background:rgba(10,124,82,.15);font-size:9px;padding:1px 6px">Best</span>':''}
+      </div>`).join('');
+
+    const maxGender = Math.max(...genderData.map(g=>g.results), 1);
+    const genderHTML = genderData.map(g=>`
+      <div class="bypage-gender-item">
+        <div class="bypage-gender-dot" style="background:${GCOLS[g.seg.toLowerCase()]||'#ccc'}"></div>
+        <span class="bypage-gender-name">${g.seg}</span>
+        <div class="bypage-gender-bar-wrap"><div class="bypage-gender-bar" style="width:${Math.round(g.results/maxGender*100)}%;background:${GCOLS[g.seg.toLowerCase()]||'#ccc'}"></div></div>
+        <span class="bypage-gender-val">${fn(g.results)}</span>
+        <span class="bypage-gender-cpr">${f$4(g.cpr)}</span>
+      </div>`).join('');
+
+    const adsRows = pgAds.map((a,i)=>{
+      const name = adNameCounts[a.name]>1?`${a.name} (${shortAdsetTag(a.adset)})`:a.name;
+      return `<tr class="${i%2?'alt-row':''}">
+        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:rtl">${name}</td>
+        <td class="num">${f$(a.spend)}</td>
+        <td class="num">${fn(a.results)}</td>
+        <td class="num">${fn(a.impressions)}</td>
+        <td class="num">${fn(a.reach)}</td>
+        <td class="num" style="color:#0A7C52">${f$4(a.cpr)}</td>
+      </tr>`;
+    }).join('');
+
+    const CHIP_COLORS = [
+      {c:'#E8410A',bg:'rgba(232,65,10,.15)'},{c:'#3B82F6',bg:'rgba(59,130,246,.15)'},
+      {c:'#7C3AED',bg:'rgba(124,58,237,.15)'},{c:'#0A7C52',bg:'rgba(10,124,82,.15)'},
+    ];
+    const cc = CHIP_COLORS[idx % CHIP_COLORS.length];
+
+    return `
+    <div class="bypage-section">
+      <div class="bypage-header">
+        <div class="bypage-title-block">
+          <div class="bypage-adset-idx" style="color:${cc.c}">Page ${idx+1} of ${D.pages.length}</div>
+          <div class="bypage-adset-name">${pg.name || '(No Page Name)'}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+            <span class="chip" style="color:${cc.c};background:${cc.bg};font-size:10px">${pct} of total spend</span>
+          </div>
+        </div>
+      </div>
+      <div class="bypage-kpi-row">
+        <div class="bypage-kpi"><div class="bypage-kpi-lbl">Spend</div><div class="bypage-kpi-val accent">${f$(pg.spend)}</div></div>
+        <div class="bypage-kpi"><div class="bypage-kpi-lbl">Results</div><div class="bypage-kpi-val">${fn(pg.results)}</div></div>
+        <div class="bypage-kpi"><div class="bypage-kpi-lbl">Cost / Result</div><div class="bypage-kpi-val green">${f$4(pg.cpr)}</div></div>
+        <div class="bypage-kpi"><div class="bypage-kpi-lbl">Reach</div><div class="bypage-kpi-val">${fnK(pg.reach)}</div></div>
+      </div>
+      <div class="grid-2 mb-18">
+        <div class="card">
+          <div class="card-label">Results by Age — CPR Ranked</div>
+          <div style="height:180px;margin-bottom:14px"><canvas id="bypage-age-chart-${idx}"></canvas></div>
+          <div>${ageRankHTML||'<span style="font-size:12px;color:rgba(255,255,255,.4)">No age data</span>'}</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Gender Performance</div>
+          <div class="bypage-gender-row" style="margin-bottom:16px">${genderHTML||'<span style="font-size:12px;color:rgba(255,255,255,.4)">No gender data</span>'}</div>
+          <div style="height:1px;background:rgba(255,255,255,.08);margin-bottom:14px"></div>
+          <div class="card-label" style="margin-bottom:10px">Impressions & Frequency</div>
+          <div style="display:flex;gap:20px">
+            <div><div class="bypage-kpi-lbl">Impressions</div><div style="font-size:15px;font-weight:800;color:#ffffff">${fnK(pg.impressions)}</div></div>
+            <div><div class="bypage-kpi-lbl">Eng. Rate</div><div style="font-size:15px;font-weight:800;color:#ffffff">${fpct(pg.results/pg.impressions*100)}</div></div>
+            <div><div class="bypage-kpi-lbl">Frequency</div><div style="font-size:15px;font-weight:800;color:#ffffff">${pg.reach>0?(pg.impressions/pg.reach).toFixed(2):'—'}</div></div>
+          </div>
+        </div>
+      </div>
+      ${adsRows?`
+      <div class="card">
+        <div class="card-label">Ads Served from This Page (${pgAds.length})</div>
+        <div class="table-wrap" style="border:none;border-radius:0;margin-top:0">
+          <table><thead><tr>
+            <th style="text-align:left">Ad Creative</th>
+            <th style="text-align:right">Spend</th><th style="text-align:right">Results</th>
+            <th style="text-align:right">Impressions</th><th style="text-align:right">Reach</th>
+            <th style="text-align:right">CPR</th>
+          </tr></thead><tbody>${adsRows}</tbody></table>
+        </div>
+      </div>`:''}
+    </div>`;
+  }).join('');
+
+  // Draw age charts
+  D.pages.forEach((pg, idx) => {
+    const canvas = document.getElementById(`bypage-age-chart-${idx}`);
+    if (!canvas) return;
+    const data = D.ageByPage[pg.name] || [];
     charts[`bypage_age_${idx}`] = new Chart(canvas, {
       type: 'bar',
       data: { labels: data.map(a=>a.seg), datasets: [
@@ -1973,7 +2056,6 @@ window.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('range-label').textContent = label;
   document.getElementById('header-range').textContent = `fiterman-pharma.com ·${label} · ${CAMPAIGN_META.goal}`;
   document.getElementById('notice-range').textContent = `Reporting period: ${label}`;
-  document.getElementById('weekly-sub').textContent = label;
   const s = prettyDate(CAMPAIGN_META.since).replace(', 2026',''), u = prettyDate(CAMPAIGN_META.until).replace(', 2026','');
   document.getElementById('mob-range-label').textContent = `${s} – ${u}`;
   initCharts();
