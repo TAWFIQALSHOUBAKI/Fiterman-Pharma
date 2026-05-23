@@ -225,7 +225,7 @@ tr:hover td{background:rgba(232,65,10,.08)!important}
 .bypage-title-block{display:flex;flex-direction:column;gap:6px}
 .bypage-adset-name{font-size:17px;font-weight:800;color:#ffffff;letter-spacing:-.01em}
 .bypage-adset-idx{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#E8410A;font-family:'DM Mono',monospace}
-.bypage-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.bypage-kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px}
 .bypage-kpi{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:14px 16px}
 .bypage-kpi-lbl{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.45);font-family:'DM Mono',monospace;margin-bottom:6px}
 .bypage-kpi-val{font-size:20px;font-weight:800;letter-spacing:-.02em;color:#ffffff}
@@ -249,7 +249,8 @@ body.light .bypage-gender-item{border-bottom-color:#E2E5EB}
 body.light .bypage-gender-name{color:#3D4A5C}
 body.light .bypage-gender-bar-wrap{background:#E2E5EB}
 body.light .bypage-gender-val{color:#0D1526}
-@media(max-width:900px){.bypage-kpi-row{grid-template-columns:1fr 1fr}}
+@media(max-width:1100px){.bypage-kpi-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){.bypage-kpi-row{grid-template-columns:1fr 1fr 1fr}}
 @media(max-width:600px){.bypage-kpi-row{grid-template-columns:1fr 1fr;gap:8px}.bypage-kpi{padding:10px 12px}.bypage-kpi-val{font-size:16px}.bypage-adset-name{font-size:15px}}
 
 /* ══ THEME TOGGLE BUTTON ══ */
@@ -828,10 +829,20 @@ function filterRows(since, until) {
 
 // ══ AGGREGATE ════════════════════════════════════════════════════════════════
 function agg(rows) {
-  let spend=0, results=0, impressions=0, reach=0;
-  rows.forEach(r=>{ spend+=r.spend; results+=r.results; impressions+=r.impressions; reach+=r.reach; });
+  let spend=0, results=0, impressions=0, reach=0, ctrWt=0, rrWt=0;
+  rows.forEach(r=>{
+    spend+=r.spend; results+=r.results; impressions+=r.impressions; reach+=r.reach;
+    ctrWt += (r.ctr||0) * (r.impressions||0);
+    rrWt  += (r.result_rate||0) * (r.impressions||0);
+  });
+  const frequency   = reach > 0 ? parseFloat((impressions/reach).toFixed(2)) : null;
+  const engRate     = impressions > 0 ? parseFloat((results/impressions*100).toFixed(4)) : 0;
+  const hasCtr      = rows.some(r => (r.ctr||0) > 0);
+  const hasRr       = rows.some(r => (r.result_rate||0) > 0);
+  const ctr         = hasCtr && impressions > 0 ? parseFloat((ctrWt/impressions).toFixed(4)) : null;
+  const result_rate = hasRr  && impressions > 0 ? parseFloat((rrWt/impressions).toFixed(4))  : null;
   return { spend:parseFloat(spend.toFixed(4)), results, impressions, reach,
-           cpr: results>0 ? spend/results : null };
+           cpr: results>0 ? spend/results : null, frequency, engRate, ctr, result_rate };
 }
 
 function groupBy(rows, key) {
@@ -1078,7 +1089,8 @@ function initCharts() {
         <div class="adset-mini"><div class="adset-mini-lbl">CPR</div><div class="adset-mini-val green">${f$4(as.cpr)}</div></div>
         <div class="adset-mini"><div class="adset-mini-lbl">Reach</div><div class="adset-mini-val">${fnK(as.reach)}</div></div>
         <div class="adset-mini"><div class="adset-mini-lbl">Impressions</div><div class="adset-mini-val">${fnK(as.impressions)}</div></div>
-        <div class="adset-mini"><div class="adset-mini-lbl">Eng. Rate</div><div class="adset-mini-val">${fpct(as.results/as.impressions*100)}</div></div>
+        <div class="adset-mini"><div class="adset-mini-lbl">Eng. Rate</div><div class="adset-mini-val">${fpct(as.engRate)}</div></div>
+        <div class="adset-mini"><div class="adset-mini-lbl">Frequency</div><div class="adset-mini-val">${as.frequency!=null?as.frequency.toFixed(2):'—'}</div></div>
       </div>
     </div>`;
   }).join('');
@@ -1215,16 +1227,22 @@ function initCharts() {
     {k:'spend',label:'Spend',fmt:f$,r:true},{k:'results',label:'Results',fmt:fn,r:true},
     {k:'impressions',label:'Impressions',fmt:fn,r:true},{k:'reach',label:'Reach',fmt:fn,r:true},
     {k:'cpr',label:'Cost/Result',fmt:f$4,r:true},
+    {k:'frequency',label:'Frequency',fmt:v=>v!=null?v.toFixed(2):'—',r:true},
+    {k:'engRate',label:'Eng. Rate',fmt:v=>fpct(v),r:true},
   ], D.ads, 'cpr');
   buildTable('table-adsets', [
     {k:'name',label:'Ad Set'},{k:'spend',label:'Spend',fmt:f$,r:true},
     {k:'results',label:'Results',fmt:fn,r:true},{k:'impressions',label:'Impressions',fmt:fn,r:true},
     {k:'reach',label:'Reach',fmt:fn,r:true},{k:'cpr',label:'Cost/Result',fmt:f$4,r:true},
+    {k:'frequency',label:'Frequency',fmt:v=>v!=null?v.toFixed(2):'—',r:true},
+    {k:'engRate',label:'Eng. Rate',fmt:v=>fpct(v),r:true},
   ], D.adsets, 'cpr');
   buildTable('table-gender', [
     {k:'seg',label:'Gender'},{k:'spend',label:'Spend',fmt:f$,r:true},
     {k:'results',label:'Results',fmt:fn,r:true},{k:'impressions',label:'Impressions',fmt:fn,r:true},
     {k:'reach',label:'Reach',fmt:fn,r:true},{k:'cpr',label:'Cost/Result',fmt:f$4,r:true},
+    {k:'frequency',label:'Frequency',fmt:v=>v!=null?v.toFixed(2):'—',r:true},
+    {k:'engRate',label:'Eng. Rate',fmt:v=>fpct(v),r:true},
   ], D.gender, 'cpr');
 
   // ── Refresh ad audience dropdown ─────────────────────────────────────────
@@ -1272,6 +1290,8 @@ function renderAgeCharts(filter) {
     {k:'spend',label:'Spend',fmt:f$,r:true},{k:'results',label:'Results',fmt:fn,r:true},
     {k:'impressions',label:'Impressions',fmt:fn,r:true},{k:'reach',label:'Reach',fmt:fn,r:true},
     {k:'cpr',label:'Cost/Result',fmt:f$4,r:true},
+    {k:'frequency',label:'Frequency',fmt:v=>v!=null?v.toFixed(2):'—',r:true},
+    {k:'engRate',label:'Eng. Rate',fmt:v=>fpct(v),r:true},
   ], data, 'cpr');
 }
 
@@ -1841,6 +1861,8 @@ function renderAdsetTab() {
         <div class="bypage-kpi"><div class="bypage-kpi-lbl">Results</div><div class="bypage-kpi-val">${fn(as.results)}</div></div>
         <div class="bypage-kpi"><div class="bypage-kpi-lbl">Cost / Result</div><div class="bypage-kpi-val green">${f$4(as.cpr)}</div></div>
         <div class="bypage-kpi"><div class="bypage-kpi-lbl">Reach</div><div class="bypage-kpi-val">${fnK(as.reach)}</div></div>
+        <div class="bypage-kpi"><div class="bypage-kpi-lbl">Impressions</div><div class="bypage-kpi-val">${fnK(as.impressions)}</div></div>
+        <div class="bypage-kpi"><div class="bypage-kpi-lbl">Frequency</div><div class="bypage-kpi-val">${as.frequency!=null?as.frequency.toFixed(2):'—'}</div></div>
       </div>
       <div class="grid-2 mb-18">
         <div class="card">
@@ -1852,11 +1874,11 @@ function renderAdsetTab() {
           <div class="card-label">Gender Performance</div>
           <div class="bypage-gender-row" style="margin-bottom:16px">${genderHTML||'<span style="font-size:12px;color:rgba(255,255,255,.4)">No gender data</span>'}</div>
           <div style="height:1px;background:rgba(255,255,255,.08);margin-bottom:14px"></div>
-          <div class="card-label" style="margin-bottom:10px">Impressions & Frequency</div>
+          <div class="card-label" style="margin-bottom:10px">Engagement & Delivery</div>
           <div style="display:flex;gap:20px">
-            <div><div class="bypage-kpi-lbl">Impressions</div><div style="font-size:15px;font-weight:800;color:#ffffff">${fnK(as.impressions)}</div></div>
-            <div><div class="bypage-kpi-lbl">Eng. Rate</div><div style="font-size:15px;font-weight:800;color:#ffffff">${fpct(as.results/as.impressions*100)}</div></div>
-            <div><div class="bypage-kpi-lbl">Frequency</div><div style="font-size:15px;font-weight:800;color:#ffffff">${as.reach>0?(as.impressions/as.reach).toFixed(2):'—'}</div></div>
+            <div><div class="bypage-kpi-lbl">Eng. Rate</div><div style="font-size:15px;font-weight:800;color:#ffffff">${fpct(as.engRate)}</div></div>
+            <div><div class="bypage-kpi-lbl">CTR (All)</div><div style="font-size:15px;font-weight:800;color:#ffffff">${as.ctr!=null?as.ctr.toFixed(2)+'%':'—'}</div></div>
+            <div><div class="bypage-kpi-lbl">Result Rate</div><div style="font-size:15px;font-weight:800;color:#ffffff">${as.result_rate!=null?as.result_rate.toFixed(2)+'%':'—'}</div></div>
           </div>
         </div>
       </div>
@@ -1977,6 +1999,8 @@ function renderByPageTab() {
         <div class="bypage-kpi"><div class="bypage-kpi-lbl">Results</div><div class="bypage-kpi-val">${fn(pg.results)}</div></div>
         <div class="bypage-kpi"><div class="bypage-kpi-lbl">Cost / Result</div><div class="bypage-kpi-val green">${f$4(pg.cpr)}</div></div>
         <div class="bypage-kpi"><div class="bypage-kpi-lbl">Reach</div><div class="bypage-kpi-val">${fnK(pg.reach)}</div></div>
+        <div class="bypage-kpi"><div class="bypage-kpi-lbl">Impressions</div><div class="bypage-kpi-val">${fnK(pg.impressions)}</div></div>
+        <div class="bypage-kpi"><div class="bypage-kpi-lbl">Frequency</div><div class="bypage-kpi-val">${pg.frequency!=null?pg.frequency.toFixed(2):'—'}</div></div>
       </div>
       <div class="grid-2 mb-18">
         <div class="card">
@@ -1988,11 +2012,11 @@ function renderByPageTab() {
           <div class="card-label">Gender Performance</div>
           <div class="bypage-gender-row" style="margin-bottom:16px">${genderHTML||'<span style="font-size:12px;color:rgba(255,255,255,.4)">No gender data</span>'}</div>
           <div style="height:1px;background:rgba(255,255,255,.08);margin-bottom:14px"></div>
-          <div class="card-label" style="margin-bottom:10px">Impressions & Frequency</div>
+          <div class="card-label" style="margin-bottom:10px">Engagement & Delivery</div>
           <div style="display:flex;gap:20px">
-            <div><div class="bypage-kpi-lbl">Impressions</div><div style="font-size:15px;font-weight:800;color:#ffffff">${fnK(pg.impressions)}</div></div>
-            <div><div class="bypage-kpi-lbl">Eng. Rate</div><div style="font-size:15px;font-weight:800;color:#ffffff">${fpct(pg.results/pg.impressions*100)}</div></div>
-            <div><div class="bypage-kpi-lbl">Frequency</div><div style="font-size:15px;font-weight:800;color:#ffffff">${pg.reach>0?(pg.impressions/pg.reach).toFixed(2):'—'}</div></div>
+            <div><div class="bypage-kpi-lbl">Eng. Rate</div><div style="font-size:15px;font-weight:800;color:#ffffff">${fpct(pg.engRate)}</div></div>
+            <div><div class="bypage-kpi-lbl">CTR (All)</div><div style="font-size:15px;font-weight:800;color:#ffffff">${pg.ctr!=null?pg.ctr.toFixed(2)+'%':'—'}</div></div>
+            <div><div class="bypage-kpi-lbl">Result Rate</div><div style="font-size:15px;font-weight:800;color:#ffffff">${pg.result_rate!=null?pg.result_rate.toFixed(2)+'%':'—'}</div></div>
           </div>
         </div>
       </div>
