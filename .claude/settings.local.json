@@ -7,7 +7,8 @@
       "Bash(node -e ' *)",
       "PowerShell(Remove-Item \"C:\\\\Users\\\\Admin\\\\.claude\\\\projects\\\\f--Dev-Robotna-Robotnainsights\\\\memory\\\\MEMORY.md\")",
       "PowerShell(Remove-Item \"C:\\\\Users\\\\Admin\\\\.claude\\\\projects\\\\f--Dev-Robotna-Robotnainsights\\\\memory\\\\user_profile.md\")",
-      "PowerShell(Remove-Item \"C:\\\\Users\\\\Admin\\\\.claude\\\\projects\\\\f--Dev-Robotna-Robotnainsights\\\\memory\\\\project_overview.md\")"
+      "PowerShell(Remove-Item \"C:\\\\Users\\\\Admin\\\\.claude\\\\projects\\\\f--Dev-Robotna-Robotnainsights\\\\memory\\\\project_overview.md\")",
+      "Bash(grep -n \"ticks:{color:'rgba\\(255,255,255,.45\\)'}\" \"f:/Dev/Fiterman Pharma/index.html\")"
     ]
   }
 }
