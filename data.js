@@ -1,6 +1,6 @@
 // ── CAMPAIGN META ──────────────────────────────────────────────
 const CAMPAIGN_META = {
-  "name": "Robotna",
+  "name": "Fiterman Pharma",
   "goal": "Outcome Engagement",
   "since": "2026-05-10",
   "until": "2026-05-23"

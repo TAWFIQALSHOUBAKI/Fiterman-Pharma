@@ -3,26 +3,26 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Robotna · Control Portal</title>
+<title>Fiterman Pharma · Control Portal</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,'Plus Jakarta Sans',sans-serif;background:#F5F6F8;color:#0D1526;min-height:100vh}
+body{font-family:-apple-system,'Plus Jakarta Sans',sans-serif;background:#080b1a;color:#ffffff;min-height:100vh}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit;cursor:pointer}
 
 /* Header */
-#header{background:#0D2445;padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between}
+#header{background:#161927;padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.1)}
 .h-title{color:#fff;font-size:15px;font-weight:700;letter-spacing:-.01em}
 .h-title span{color:#E8410A}
-.h-back{color:#94A3B8;font-size:12px;font-weight:500;border:1px solid #2A3F60;border-radius:6px;padding:5px 12px;transition:all .15s}
+.h-back{color:rgba(255,255,255,.55);font-size:12px;font-weight:500;border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:5px 12px;transition:all .15s}
 .h-back:hover{color:#fff;border-color:#fff}
 
 /* Auth gate */
-#auth-gate{max-width:380px;margin:120px auto;background:#fff;border-radius:12px;padding:40px;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+#auth-gate{max-width:380px;margin:120px auto;background:#161927;border-radius:12px;padding:40px;box-shadow:0 4px 24px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1)}
 #auth-gate h2{font-size:18px;font-weight:800;margin-bottom:8px}
-#auth-gate p{font-size:13px;color:#7A8595;margin-bottom:24px}
-.field-label{font-size:12px;font-weight:600;color:#3D4A5C;margin-bottom:6px}
-input[type=password]{width:100%;padding:10px 14px;border:1px solid #E2E5EB;border-radius:7px;font-size:14px;outline:none;transition:border .15s}
+#auth-gate p{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:24px}
+.field-label{font-size:12px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:6px}
+input[type=password]{width:100%;padding:10px 14px;border:1px solid rgba(255,255,255,.12);border-radius:7px;font-size:14px;outline:none;transition:border .15s;background:#080b1a;color:#ffffff}
 input[type=password]:focus{border-color:#E8410A}
 .btn-primary{width:100%;margin-top:16px;padding:11px;background:#E8410A;color:#fff;border:none;border-radius:7px;font-size:14px;font-weight:700;transition:background .15s}
 .btn-primary:hover{background:#c73508}
@@ -30,24 +30,24 @@ input[type=password]:focus{border-color:#E8410A}
 
 /* Main layout */
 #app{display:none;max-width:960px;margin:0 auto;padding:32px 24px}
-.section{background:#fff;border-radius:12px;padding:28px;margin-bottom:24px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-.section-title{font-size:14px;font-weight:800;color:#0D1526;margin-bottom:4px}
-.section-sub{font-size:12px;color:#7A8595;margin-bottom:20px}
+.section{background:#161927;border-radius:12px;padding:28px;margin-bottom:24px;box-shadow:0 1px 4px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08)}
+.section-title{font-size:14px;font-weight:800;color:#ffffff;margin-bottom:4px}
+.section-sub{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:20px}
 
 /* Campaign meta */
 .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .field{display:flex;flex-direction:column;gap:6px}
-.field label{font-size:12px;font-weight:600;color:#3D4A5C}
-.field input,.field select{padding:9px 12px;border:1px solid #E2E5EB;border-radius:7px;font-size:13px;font-family:inherit;outline:none;transition:border .15s}
+.field label{font-size:12px;font-weight:600;color:rgba(255,255,255,.65)}
+.field input,.field select{padding:9px 12px;border:1px solid rgba(255,255,255,.12);border-radius:7px;font-size:13px;font-family:inherit;outline:none;transition:border .15s;background:#080b1a;color:#ffffff}
 .field input:focus,.field select:focus{border-color:#E8410A}
 .goal-opts{grid-column:1/-1}
 
 /* Drop zone */
-#drop-zone{border:2px dashed #D1D8E2;border-radius:10px;padding:40px 24px;text-align:center;transition:all .2s;cursor:pointer}
-#drop-zone.drag-over{border-color:#E8410A;background:#FEF0EB}
+#drop-zone{border:2px dashed rgba(255,255,255,.2);border-radius:10px;padding:40px 24px;text-align:center;transition:all .2s;cursor:pointer;background:rgba(255,255,255,.03)}
+#drop-zone.drag-over{border-color:#E8410A;background:rgba(232,65,10,.08)}
 #drop-zone svg{opacity:.3;margin-bottom:12px}
-#drop-zone p{font-size:13px;color:#7A8595}
-#drop-zone strong{color:#0D1526}
+#drop-zone p{font-size:13px;color:rgba(255,255,255,.5)}
+#drop-zone strong{color:#ffffff}
 #file-input{display:none}
 #parse-status{margin-top:12px;font-size:12px;font-weight:600;color:#7A8595}
 #parse-status.ok{color:#16A34A}
@@ -59,26 +59,26 @@ input[type=password]:focus{border-color:#E8410A}
 .preview-head span{font-size:12px;color:#7A8595}
 .tbl-wrap{overflow-x:auto;max-height:220px;overflow-y:auto;border:1px solid #E2E5EB;border-radius:8px}
 table{width:100%;border-collapse:collapse;font-size:11px}
-th{background:#F5F6F8;padding:7px 10px;font-weight:700;text-align:left;position:sticky;top:0;white-space:nowrap}
-td{padding:6px 10px;border-top:1px solid #F0F1F4;white-space:nowrap}
-tr:hover td{background:#FAFBFC}
+th{background:rgba(255,255,255,.06);padding:7px 10px;font-weight:700;text-align:left;position:sticky;top:0;white-space:nowrap;color:rgba(255,255,255,.7)}
+td{padding:6px 10px;border-top:1px solid rgba(255,255,255,.06);white-space:nowrap;color:rgba(255,255,255,.8)}
+tr:hover td{background:rgba(255,255,255,.04)}
 
 /* Findings */
 .findings-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
 .finding-row{display:grid;grid-template-columns:130px 1fr auto;gap:8px;align-items:start}
-.finding-row input{padding:8px 10px;border:1px solid #E2E5EB;border-radius:6px;font-size:12px;font-family:inherit;outline:none}
+.finding-row input{padding:8px 10px;border:1px solid rgba(255,255,255,.12);border-radius:6px;font-size:12px;font-family:inherit;outline:none;background:#080b1a;color:#ffffff}
 .finding-row input:focus{border-color:#E8410A}
-.finding-row textarea{padding:8px 10px;border:1px solid #E2E5EB;border-radius:6px;font-size:12px;font-family:inherit;resize:vertical;min-height:40px;outline:none}
+.finding-row textarea{padding:8px 10px;border:1px solid rgba(255,255,255,.12);border-radius:6px;font-size:12px;font-family:inherit;resize:vertical;min-height:40px;outline:none;background:#080b1a;color:#ffffff}
 .finding-row textarea:focus{border-color:#E8410A}
-.btn-icon{background:none;border:1px solid #E2E5EB;border-radius:6px;padding:7px 9px;color:#7A8595;font-size:13px;transition:all .15s}
+.btn-icon{background:none;border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:7px 9px;color:rgba(255,255,255,.45);font-size:13px;transition:all .15s}
 .btn-icon:hover{border-color:#E8410A;color:#E8410A}
-.btn-add{background:none;border:1px dashed #D1D8E2;border-radius:7px;padding:8px 14px;font-size:12px;font-weight:600;color:#7A8595;width:100%;transition:all .15s}
+.btn-add{background:none;border:1px dashed rgba(255,255,255,.2);border-radius:7px;padding:8px 14px;font-size:12px;font-weight:600;color:rgba(255,255,255,.45);width:100%;transition:all .15s}
 .btn-add:hover{border-color:#E8410A;color:#E8410A}
 
 /* Generate */
 .gen-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.btn-gen{padding:11px 20px;background:#0D2445;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;transition:background .15s}
-.btn-gen:hover{background:#1A3A60}
+.btn-gen{padding:11px 20px;background:#E8410A;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;transition:background .15s}
+.btn-gen:hover{background:#c73508}
 .btn-gen:disabled{opacity:.5;cursor:not-allowed}
 #gen-status{font-size:12px;font-weight:600;color:#7A8595}
 #gen-status.ok{color:#16A34A}
@@ -86,8 +86,8 @@ tr:hover td{background:#FAFBFC}
 
 /* Badge */
 .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-family:'DM Mono',monospace}
-.badge-orange{background:#FEF0EB;color:#E8410A}
-.badge-blue{background:#EFF6FF;color:#1D4ED8}
+.badge-orange{background:rgba(232,65,10,.15);color:#E8410A}
+.badge-blue{background:rgba(29,78,216,.15);color:#3B82F6}
 
 @media(max-width:600px){
   .meta-grid{grid-template-columns:1fr}
@@ -101,7 +101,7 @@ tr:hover td{background:#FAFBFC}
 <body>
 
 <div id="header">
-  <div class="h-title">Robotna <span>Control Portal</span></div>
+  <div class="h-title">Fiterman Pharma <span>Control Portal</span></div>
   <a href="index.html" class="h-back">← View Dashboard</a>
 </div>
 
@@ -125,7 +125,7 @@ tr:hover td{background:#FAFBFC}
     <div class="meta-grid">
       <div class="field">
         <label>Campaign Name</label>
-        <input type="text" id="meta-name" placeholder="Robotna"/>
+        <input type="text" id="meta-name" placeholder="Fiterman Pharma"/>
       </div>
       <div class="field goal-opts">
         <label>Campaign Goal / Objective</label>
@@ -155,7 +155,7 @@ tr:hover td{background:#FAFBFC}
     <div class="section-sub">Upload a CSV (with <code>Day</code> column) exported from Meta Ads Manager. The portal parses it in-browser — nothing is sent to a server.</div>
 
     <div id="drop-zone" onclick="document.getElementById('file-input').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#0D1526" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
       <p><strong>Click to browse</strong> or drag &amp; drop a CSV file here</p>
       <p style="margin-top:6px;font-size:11px">Supports: Meta Ads Manager daily CSV export</p>
     </div>
@@ -195,7 +195,7 @@ tr:hover td{background:#FAFBFC}
 
 <script>
 // ── Config ──────────────────────────────────────────────────────────────────
-const PORTAL_PASSWORD = 'robotna2026'; // change this
+const PORTAL_PASSWORD = 'fitermanpharma2026'; // change this
 
 // ── Auth ──────────────────────────────────────────────────────────────────
 function tryAuth() {
@@ -215,8 +215,8 @@ function tryAuth() {
 let parsedRows = null;
 
 function loadFromStorage() {
-  const saved = JSON.parse(localStorage.getItem('robotna_portal') || '{}');
-  document.getElementById('meta-name').value  = saved.name  || 'Robotna';
+  const saved = JSON.parse(localStorage.getItem('fiterman_portal') || '{}');
+  document.getElementById('meta-name').value  = saved.name  || 'Fiterman Pharma';
   document.getElementById('meta-goal').value  = saved.goal  || 'Outcome Engagement';
   document.getElementById('meta-since').value = saved.since || '';
   document.getElementById('meta-until').value = saved.until || '';
@@ -230,7 +230,7 @@ function loadFromStorage() {
 
 function saveToStorage() {
   const findings = getFindingsData();
-  localStorage.setItem('robotna_portal', JSON.stringify({
+  localStorage.setItem('fiterman_portal', JSON.stringify({
     name:  document.getElementById('meta-name').value,
     goal:  document.getElementById('meta-goal').value,
     since: document.getElementById('meta-since').value,
@@ -388,7 +388,7 @@ function getFindingsData() {
 
 // ── Generate data.js ────────────────────────────────────────────────────────
 function generate() {
-  const name  = document.getElementById('meta-name').value.trim() || 'Robotna';
+  const name  = document.getElementById('meta-name').value.trim() || 'Fiterman Pharma';
   const goal  = document.getElementById('meta-goal').value;
   const since = document.getElementById('meta-since').value;
   const until = document.getElementById('meta-until').value;
