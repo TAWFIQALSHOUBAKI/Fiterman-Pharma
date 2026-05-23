@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Robotna — Campaign Analytics</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ── RESET & BASE ── */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:#F5F6F8;color:#0D1526;min-height:100vh}
+button{font-family:inherit;cursor:pointer}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes popIn{from{opacity:0;transform:translateY(-6px) scale(.97)}to{opacity:1;transform:none}}
+.fade-in{animation:fadeIn .2s ease}
+
+/* ── STICKY HEADER ── */
+#header{background:#fff;border-bottom:1px solid #E2E5EB;position:sticky;top:0;z-index:100;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+.header-inner{max-width:1320px;margin:0 auto;padding:0 32px;display:flex;justify-content:space-between;align-items:center;height:64px}
+.brand{display:flex;align-items:center;gap:18px}
+.logo-mark{width:38px;height:38px;border-radius:9px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.12);flex-shrink:0;padding:2px;border:1px solid #E2E5EB}
+.logo-mark span{color:#fff;font-size:19px;font-weight:900;font-family:Georgia,serif;line-height:1}
+.brand-text{line-height:1}
+.brand-title{font-size:15px;font-weight:800;color:#0D1526;letter-spacing:-.01em}
+.brand-title .sub{color:#7A8595;font-weight:500;margin-left:8px;font-size:13px}
+.brand-sub{font-size:11px;color:#7A8595;font-family:'DM Mono',monospace;margin-top:1px}
+.divider-v{width:1px;height:28px;background:#E2E5EB}
+.chip{display:inline-flex;align-items:center;padding:2px 9px;border-radius:5px;font-size:11px;font-weight:600;letter-spacing:.05em;font-family:'DM Mono',monospace;text-transform:uppercase;white-space:nowrap}
+.header-controls{display:flex;align-items:center;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:7px;border:1px solid #E2E5EB;background:#fff;color:#3D4A5C;font-size:12px;font-weight:600;letter-spacing:.01em;transition:all .15s}
+.btn:hover{border-color:#E8410A;color:#E8410A;background:#FEF0EB}
+.btn-navy{background:#0D2445;color:#fff;border-color:#0D2445}
+.btn-navy:hover{background:#1A3A60;border-color:#1A3A60;color:#fff}
+svg-icon{display:inline-block;vertical-align:middle;margin-right:4px}
+
+/* ── TAB BAR ── */
+#tabbar{background:#fff;border-bottom:1px solid #E2E5EB}
+.tabbar-inner{max-width:1320px;margin:0 auto;padding:0 32px;display:flex;align-items:center;height:50px;gap:2px}
+.tab-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:7px;border:1px solid transparent;font-size:13px;font-weight:600;color:#7A8595;transition:all .15s;background:transparent}
+.tab-btn:hover{background:#FEF0EB;color:#E8410A}
+.tab-btn.active{background:#E8410A;color:#fff}
+.tabbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.tab-meta{font-size:11px;color:#7A8595;font-family:'DM Mono',monospace}
+
+/* ── DATE PICKER ── */
+.date-trigger{display:inline-flex;align-items:center;gap:7px;padding:6px 13px;border-radius:7px;border:1px solid #E2E5EB;background:#fff;color:#3D4A5C;font-size:12px;font-weight:600;transition:all .15s;white-space:nowrap}
+.date-trigger:hover,.date-trigger.open{border-color:#E8410A;color:#E8410A;background:#FEF0EB}
+.date-popover{position:fixed;top:114px;right:16px;background:#fff;border:1px solid #E2E5EB;border-radius:12px;padding:20px 22px;z-index:500;box-shadow:0 8px 32px rgba(13,36,69,.14);min-width:310px;animation:popIn .15s ease;display:none}
+.date-popover.open{display:block}
+.pop-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.pop-title{font-size:13px;font-weight:700;color:#0D1526}
+.pop-close{background:none;border:none;color:#7A8595;font-size:18px;line-height:1;padding:2px 4px}
+.date-inputs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.date-label{font-size:11px;font-weight:600;color:#7A8595;letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px}
+.date-input{width:100%;padding:8px 10px;border-radius:7px;border:1.5px solid #E2E5EB;font-size:13px;color:#0D1526;font-family:inherit;outline:none;transition:border-color .15s}
+.date-input:focus{border-color:#E8410A}
+.presets-label{font-size:11px;font-weight:600;color:#7A8595;letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px}
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.preset-btn{padding:5px 11px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid #E2E5EB;background:#F9FAFB;color:#3D4A5C;transition:all .12s}
+.preset-btn:hover,.preset-btn.active{border-color:#E8410A;background:#FEF0EB;color:#E8410A}
+.pop-actions{display:flex;gap:8px;justify-content:flex-end;padding-top:14px;border-top:1px solid #E2E5EB}
+.pop-cancel{padding:8px 16px;border-radius:7px;border:1px solid #E2E5EB;background:#fff;color:#3D4A5C;font-size:12px;font-weight:600}
+.pop-apply{padding:8px 18px;border-radius:7px;border:1px solid #E8410A;background:#E8410A;color:#fff;font-size:12px;font-weight:700}
+.date-error{font-size:12px;color:#BE2B2B;margin-bottom:12px;display:none}
+
+/* ── PAGE BODY ── */
+#body{max-width:1320px;margin:0 auto;padding:30px 32px 64px}
+.page{display:none}
+.page.active{display:block;animation:fadeIn .2s ease}
+
+/* ── CARDS ── */
+.card{background:#fff;border:1px solid #E2E5EB;border-radius:10px;padding:22px 24px}
+.card-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#7A8595;margin-bottom:14px;font-family:'DM Mono',monospace}
+
+/* ── GRIDS ── */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.grid-2-1{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-bottom:18px}
+.grid-3-2{display:grid;grid-template-columns:3fr 2fr;gap:18px;margin-bottom:22px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+.mb-18{margin-bottom:18px}
+.mb-22{margin-bottom:22px}
+.mb-24{margin-bottom:24px}
+.mt-24{margin-top:24px}
+.mt-28{margin-top:28px}
+
+/* ── KPI CARDS ── */
+.kpi{border-radius:10px;padding:20px 22px;position:relative;overflow:hidden;border:1px solid #E2E5EB}
+.kpi-default{background:#fff}
+.kpi-accent{background:#E8410A;border-color:#E8410A}
+.kpi-navy{background:#0D2445;border-color:#0D2445}
+.kpi-blob{position:absolute;top:-28px;right:-28px;width:88px;height:88px;border-radius:50%;background:rgba(255,255,255,.06)}
+.kpi-row{display:flex;align-items:center;gap:9px;margin-bottom:13px}
+.kpi-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.kpi-icon-default{background:#FEF0EB}
+.kpi-icon-inv{background:rgba(255,255,255,.18)}
+.kpi-lbl{font-size:12px;font-weight:600}
+.kpi-val{font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.kpi-sub{font-size:12px;margin-top:7px;line-height:1.4}
+.c-white{color:#fff}.c-white-mid{color:rgba(255,255,255,.72)}.c-white-low{color:rgba(255,255,255,.55)}
+.c-t1{color:#0D1526}.c-t2{color:#3D4A5C}.c-t3{color:#7A8595}.c-brand{color:#E8410A}.c-pos{color:#0A7C52}
+
+/* ── SECTION HEADER ── */
+.shead{margin-bottom:20px}
+.shead-eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#E8410A;margin-bottom:5px;font-family:'DM Mono',monospace}
+.shead-title{font-size:18px;font-weight:700;color:#0D1526;letter-spacing:-.01em}
+.shead-sub{font-size:13px;color:#3D4A5C;margin-top:4px}
+
+/* ── SCORE TILES ── */
+.score{border-radius:10px;padding:22px}
+.score-lbl{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:10px}
+.score-val{font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1;color:#0D1526}
+.score-sub{font-size:12px;color:#7A8595;margin-top:8px;line-height:1.5}
+
+/* ── NOTICE BANNER ── */
+.notice{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding:10px 16px;border-radius:8px;background:#EBF0F8;border:1px solid rgba(13,36,69,.13)}
+.notice span{font-size:13px;color:#0D2445;font-weight:600}
+.notice small{font-size:12px;color:#7A8595;margin-left:4px}
+
+/* ── MINI BAR ROW ── */
+.mrow{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #E2E5EB}
+.mrow-label{flex:1;font-size:13px;color:#3D4A5C}
+.mrow-bar-wrap{width:100px;height:5px;border-radius:3px;background:#E2E5EB;overflow:hidden}
+.mrow-bar{height:100%;border-radius:3px}
+.mrow-val{width:68px;text-align:right;font-size:12px;font-weight:700;color:#0D1526;font-family:'DM Mono',monospace}
+
+/* ── GENDER LIST ── */
+.gender-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.gender-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.gender-name{font-size:13px;color:#3D4A5C;margin-left:8px;flex:1}
+.gender-num{font-size:12px;font-family:'DM Mono',monospace;font-weight:600;color:#0D1526}
+.gender-pct{font-size:12px;font-family:'DM Mono',monospace;color:#7A8595;width:40px;text-align:right;margin-left:14px}
+
+/* ── ADSET MINI CARDS ── */
+.adset-mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.adset-mini{background:#F9FAFB;border-radius:7px;border:1px solid #E2E5EB;padding:10px 12px}
+.adset-mini-lbl{font-size:10px;font-weight:600;color:#7A8595;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.adset-mini-val{font-size:16px;font-weight:800;letter-spacing:-.01em;color:#0D1526}
+.adset-mini-val.green{color:#0A7C52}
+
+/* ── SORTABLE TABLE ── */
+.table-wrap{overflow-x:auto;border-radius:8px;border:1px solid #E2E5EB}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{background:#F9FAFB}
+th{padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7A8595;cursor:pointer;white-space:nowrap;border-bottom:2px solid #E2E5EB;user-select:none;font-family:'DM Mono',monospace}
+th:hover{color:#E8410A}
+th.sort-asc::after{content:' ↑';color:#E8410A}
+th.sort-desc::after{content:' ↓';color:#E8410A}
+td{padding:11px 14px;border-bottom:1px solid #E2E5EB;white-space:nowrap}
+td.num{font-family:'DM Mono',monospace;font-size:12px;font-weight:600;text-align:right}
+tr.best-row td{background:#ECFDF5;color:#0A7C52;font-weight:700}
+tr.alt-row{background:#F9FAFB}
+tr:hover td{background:#FEF0EB!important}
+.best-badge{margin-left:6px;font-size:10px;color:#0A7C52}
+
+/* ── CPR RANK LIST ── */
+.cpr-rank-item{padding:10px 0;border-bottom:1px solid #E2E5EB}
+.cpr-rank-top{display:flex;justify-content:space-between;margin-bottom:3px}
+.cpr-rank-name{font-size:12px;color:#3D4A5C;direction:rtl}
+.cpr-rank-val{font-size:12px;font-weight:700;font-family:'DM Mono',monospace}
+.cpr-rank-bot{display:flex;justify-content:space-between}
+.cpr-rank-meta{font-size:11px;color:#7A8595;font-family:'DM Mono',monospace}
+
+/* ── AGE RANK ── */
+.age-rank-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #E2E5EB}
+.age-seg{font-size:13px;font-weight:600;color:#0D1526;width:44px;font-family:'DM Mono',monospace}
+.age-bar-wrap{flex:1;height:5px;border-radius:3px;background:#E2E5EB;overflow:hidden}
+.age-bar{height:100%;border-radius:3px}
+.age-cpr{font-size:12px;font-family:'DM Mono',monospace;font-weight:700;width:64px;text-align:right}
+.age-best-chip{margin-left:4px}
+
+/* ── GENDER TILES ── */
+.gender-tile{border-radius:10px;border:1px solid #E2E5EB;padding:18px 20px}
+.gender-tile-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.gender-dot-lg{width:12px;height:12px;border-radius:3px}
+.gender-tile-name{font-size:13px;font-weight:700;color:#0D1526}
+.gender-tile-val{font-size:24px;font-weight:800;color:#0D1526;letter-spacing:-.02em;margin-bottom:6px}
+.gender-tile-lbl{font-size:11px;color:#7A8595;font-family:'DM Mono',monospace}
+.gender-tile-footer{margin-top:12px;padding-top:12px;border-top:1px solid #E2E5EB;display:flex;justify-content:space-between}
+.gender-tile-stat-lbl{font-size:10px;color:#7A8595;font-family:'DM Mono',monospace;margin-bottom:3px}
+.gender-tile-stat-val{font-size:13px;font-weight:700;font-family:'DM Mono',monospace}
+
+/* ── ADSET FILTER ── */
+.filter-row{display:flex;align-items:center;gap:8px;margin-bottom:20px}
+.filter-lbl{font-size:12px;color:#7A8595;font-family:'DM Mono',monospace}
+.filter-btn{padding:6px 14px;border-radius:6px;border:1px solid #E2E5EB;background:#fff;color:#3D4A5C;font-size:12px;font-weight:600;transition:all .15s}
+.filter-btn:hover{border-color:#E8410A;color:#E8410A}
+.filter-btn.active{background:#0D2445;color:#fff;border-color:#0D2445}
+
+/* ── CHART CONTAINERS ── */
+.chart-wrap{position:relative}
+
+/* ── FOOTER ── */
+#footer{background:#fff;border-top:1px solid #E2E5EB;padding:14px 32px}
+.footer-inner{max-width:1320px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+.footer-brand{display:flex;align-items:center;gap:10px}
+.footer-logo{width:22px;height:22px;border-radius:5px;background:#E8410A;display:flex;align-items:center;justify-content:center}
+.footer-logo span{color:#fff;font-size:11px;font-weight:900;font-family:Georgia,serif}
+.footer-txt{font-size:12px;color:#7A8595;font-family:'DM Mono',monospace}
+
+/* ── VIEW TOGGLE BUTTONS ── */
+.view-btn{padding:5px 12px;border-radius:6px;border:1px solid #E2E5EB;background:#F9FAFB;color:#3D4A5C;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit;white-space:nowrap}
+.view-btn:hover{border-color:#E8410A;color:#E8410A;background:#FEF0EB}
+.view-btn.active{background:#0D2445;color:#fff;border-color:#0D2445}
+/* ── MOBILE DATE FAB ── */
+.mobile-date-fab{display:none;position:fixed;bottom:20px;right:16px;z-index:500}
+@media(max-width:600px){
+  .mobile-date-fab{display:block}
+  #date-popover{top:auto;bottom:72px;right:12px;left:12px;min-width:unset;width:auto}
+}
+/* ── DATE PICKER WRAPPER ── */
+.date-picker-wrapper{position:relative}
+
+/* ── PRINT STYLES ── */
+@media print{
+  #header,#tabbar,#footer,.header-controls,.tabbar-right{display:none!important}
+  #body{padding:0!important;max-width:100%!important}
+  .page{display:block!important}
+  .card{page-break-inside:avoid}
+}
+
+/* ── RESPONSIVE ── */
+/* ── TABLET ── */
+@media(max-width:900px){
+  .grid-4{grid-template-columns:1fr 1fr}
+  .grid-2,.grid-2-1,.grid-3-2,.grid-3{grid-template-columns:1fr}
+  .header-inner,.tabbar-inner,.footer-inner{padding:0 20px}
+  #body{padding:20px 20px 48px}
+  .brand .chip{display:none}
+  .adset-mini-grid{grid-template-columns:repeat(3,1fr)}
+  .footer-inner{flex-direction:column;gap:6px;text-align:center;padding:14px 20px}
+}
+
+/* ── MOBILE ── */
+@media(max-width:600px){
+  /* Header */
+  .header-inner{height:auto;padding:12px 16px;flex-wrap:wrap;gap:10px}
+  .brand{flex-wrap:wrap;gap:10px}
+  .brand-title .sub{display:none}
+  .brand-sub{font-size:10px}
+  .divider-v{display:none}
+  .header-controls{width:100%;justify-content:flex-end;gap:6px}
+  .btn{padding:7px 11px;font-size:11px}
+
+  /* Tab bar — horizontal scroll */
+  #tabbar{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tabbar-inner{height:auto;padding:8px 12px;min-width:max-content;gap:4px;flex-wrap:nowrap}
+  .tab-btn{padding:7px 12px;font-size:12px;white-space:nowrap}
+  .tabbar-right{display:none}
+
+  /* Floating date trigger — fixed bottom */
+  .date-picker-wrapper{position:fixed;bottom:16px;right:16px;z-index:500}
+  .date-trigger{box-shadow:0 4px 16px rgba(13,36,69,.2);background:#E8410A;color:#fff;border-color:#E8410A;padding:10px 16px;border-radius:24px;font-size:13px}
+  .date-trigger:hover{background:#BF320A;border-color:#BF320A}
+  .date-popover{right:0;bottom:calc(100% + 10px);top:auto;min-width:290px}
+
+  /* Body */
+  #body{padding:16px 12px 100px}
+
+  /* KPI grid — 2 col on mobile */
+  .grid-4{grid-template-columns:1fr 1fr;gap:10px}
+  .kpi{padding:14px 14px}
+  .kpi-val{font-size:20px}
+  .kpi-sub{font-size:11px}
+  .kpi-icon{width:26px;height:26px}
+  .kpi-lbl{font-size:11px}
+
+  /* All grids single col */
+  .grid-2,.grid-2-1,.grid-3-2,.grid-3{grid-template-columns:1fr;gap:12px}
+
+  /* Cards */
+  .card{padding:16px 16px}
+  .card-label{font-size:10px;margin-bottom:10px}
+
+  /* Score tiles */
+  .score{padding:16px}
+  .score-val{font-size:26px}
+
+  /* Adset mini-cards */
+  .adset-mini-grid{grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .adset-mini{padding:8px 10px}
+  .adset-mini-val{font-size:13px}
+
+  /* Section headings */
+  .shead-title{font-size:16px}
+  .shead-sub{font-size:12px}
+
+  /* Tables — readable on mobile */
+  .table-wrap{border-radius:6px}
+  table{font-size:12px}
+  th{padding:8px 10px;font-size:10px}
+  td{padding:8px 10px}
+  td.num{font-size:11px}
+
+  /* CPR rank list */
+  .cpr-rank-name{font-size:11px}
+  .cpr-rank-val{font-size:11px}
+  .cpr-rank-meta{font-size:10px}
+
+  /* Age rank */
+  .age-seg{font-size:12px;width:36px}
+  .age-cpr{font-size:11px;width:54px}
+
+  /* Gender tiles — 1 col */
+  .grid-3.mb-22{grid-template-columns:1fr}
+  .gender-tile{padding:14px 16px}
+  .gender-tile-val{font-size:20px}
+
+  /* Filter row wraps */
+  .filter-row{flex-wrap:wrap;gap:6px}
+  .filter-btn{font-size:11px;padding:5px 10px}
+
+  /* Notice banner */
+  .notice{flex-wrap:wrap;gap:6px;padding:10px 12px}
+  .notice small{font-size:11px}
+
+  /* Footer */
+  .footer-inner{flex-direction:column;gap:6px;text-align:center;padding:14px 16px}
+  .footer-brand{flex-wrap:wrap;justify-content:center}
+  .footer-txt{font-size:11px}
+
+  /* Charts — allow scroll if needed */
+  .chart-wrap{overflow-x:auto}
+  /* Shorter charts on mobile */
+  canvas{max-height:200px!important}
+}
+
+/* ── FINDINGS PANEL ── */
+#findings-panel{max-width:1320px;margin:0 auto;padding:0 32px 24px;display:none}
+.findings-card{background:#FFFBF5;border:1px solid #FDE68A;border-radius:10px;padding:20px 24px}
+.findings-title{font-size:13px;font-weight:800;color:#92400E;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.finding-item{display:flex;gap:12px;align-items:flex-start;padding:8px 0;border-bottom:1px solid #FDE68A}
+.finding-item:last-child{border-bottom:none}
+.finding-date{font-size:11px;font-family:'DM Mono',monospace;color:#92400E;background:#FEF3C7;padding:2px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.finding-note{font-size:13px;color:#0D1526;line-height:1.5}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<div id="header">
+  <div class="header-inner">
+    <div class="brand">
+      <div class="logo-mark" style="background:transparent;box-shadow:none;overflow:hidden">
+        <img src="data:image/webp;base64,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" alt="Robotna" style="width:38px;height:38px;object-fit:contain;border-radius:9px"/>
+      </div>
+      <div class="brand-text">
+        <div class="brand-title">Robotna<span class="sub">/ Campaign Analytics</span></div>
+        <div class="brand-sub" id="header-range">robotna.org · May 10, 2026 – May 17, 2026 · Outcome Engagement</div>
+      </div>
+      <div class="divider-v"></div>
+      <span class="chip" style="color:#0A7C52;background:#ECFDF5">● Active</span>
+      <span class="chip" style="color:#7A8595;background:#F5F6F8">Account 36890470</span>
+    </div>
+    <div class="header-controls">
+      <button class="btn btn-navy" onclick="downloadPDF()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TAB BAR ══ -->
+<div id="tabbar">
+  <div class="tabbar-inner">
+    <button class="tab-btn active" onclick="setTab('overview',this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Overview
+    </button>
+    <button class="tab-btn" onclick="setTab('weekly',this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Weekly
+    </button>
+    <button class="tab-btn" onclick="setTab('creative',this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Creative & Ads
+    </button>
+    <button class="tab-btn" onclick="setTab('audience',this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      Audience
+    </button>
+    <div class="tabbar-right">
+      <span class="tab-meta" id="tab-meta"></span>
+      <div style="width:1px;height:20px;background:#E2E5EB"></div>
+      <!-- Date Picker — desktop -->
+      <div class="date-picker-wrapper" id="desktop-picker">
+        <button class="date-trigger" id="date-trigger" onclick="toggleDatePicker()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span id="range-label">May 10, 2026 – May 17, 2026</span>
+          <span id="picker-arrow" style="font-size:9px;font-family:'DM Mono',monospace;font-weight:700">▼</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Date popover — shared, rendered outside tabbar so it works on mobile too -->
+<div class="date-popover" id="date-popover">
+  <div class="pop-header">
+    <div class="pop-title">Reporting Period</div>
+    <button class="pop-close" onclick="closeDatePicker()">×</button>
+  </div>
+  <div class="date-inputs">
+    <div>
+      <div class="date-label">Start Date</div>
+      <input type="date" class="date-input" id="date-since"/>
+    </div>
+    <div>
+      <div class="date-label">End Date</div>
+      <input type="date" class="date-input" id="date-until"/>
+    </div>
+  </div>
+  <div class="date-error" id="date-error">⚠ Start date must be before end date.</div>
+  <div class="presets-label">Quick Select</div>
+  <div class="presets">
+    <button class="preset-btn" onclick="applyPreset('2026-05-10','2026-05-13',this)">Mon–Wed</button>
+    <button class="preset-btn" onclick="applyPreset('2026-05-14','2026-05-16',this)">Thu–Sat</button>
+    <button class="preset-btn" id="preset-alldays" onclick="applyPreset(CAMPAIGN_META.since, CAMPAIGN_META.until, this)">All days</button>
+  </div>
+  <div class="pop-actions">
+    <button class="pop-cancel" onclick="closeDatePicker()">Cancel</button>
+    <button class="pop-apply" onclick="applyDateRange()">✓ Apply</button>
+  </div>
+</div>
+
+<!-- ══ FINDINGS PANEL ══ -->
+<div id="findings-panel"></div>
+
+<!-- ══ BODY ══ -->
+<div id="body">
+
+  <!-- ════ OVERVIEW PAGE ════ -->
+  <div class="page active" id="page-overview">
+
+    <div class="notice">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0D2445" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span id="notice-range">Reporting period: May 10, 2026 – May 17, 2026</span>
+      <small>— data sourced from Analysis-Report.csv</small>
+    </div>
+
+    <!-- KPI Row 1 -->
+    <div class="grid-4">
+      <div class="kpi kpi-accent">
+        <div class="kpi-blob"></div>
+        <div class="kpi-row">
+          <div class="kpi-icon kpi-icon-inv">💰</div>
+          <span class="kpi-lbl c-white-mid">Total Spend</span>
+        </div>
+        <div class="kpi-val c-white">$107.93</div>
+        <div class="kpi-sub c-white-low">$53.96 avg / period</div>
+      </div>
+      <div class="kpi kpi-navy">
+        <div class="kpi-blob"></div>
+        <div class="kpi-row">
+          <div class="kpi-icon kpi-icon-inv">👁</div>
+          <span class="kpi-lbl c-white-mid">Reach</span>
+        </div>
+        <div class="kpi-val c-white">164.2K</div>
+        <div class="kpi-sub c-white-low">197.0K total impressions</div>
+      </div>
+      <div class="kpi kpi-default">
+        <div class="kpi-row">
+          <div class="kpi-icon kpi-icon-default">🎯</div>
+          <span class="kpi-lbl c-t2">Post Engagements</span>
+        </div>
+        <div class="kpi-val c-t1">81.8K</div>
+        <div class="kpi-sub c-t3">$0.0013 cost per result</div>
+      </div>
+      <div class="kpi kpi-default">
+        <div class="kpi-row">
+          <div class="kpi-icon kpi-icon-default">📊</div>
+          <span class="kpi-lbl c-t2">Engagement Rate</span>
+        </div>
+        <div class="kpi-val c-t1">41.50%</div>
+        <div class="kpi-sub c-t3">Results ÷ Impressions</div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid-2-1">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+          <div class="card-label" style="margin-bottom:0" id="spend-chart-title">Spend vs Results — By Week</div>
+          <div style="display:flex;gap:4px">
+            <button class="view-btn active" onclick="setSpendView('weekly',this)">Weekly</button>
+            <button class="view-btn" onclick="setSpendView('daily',this)">Daily</button>
+            <button class="view-btn" onclick="setSpendView('adset',this)">Ad Set</button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-weekly-overview" height="220"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Results by Gender</div>
+        <div class="chart-wrap" style="max-height:160px"><canvas id="chart-gender-donut" height="160"></canvas></div>
+        <div style="margin-top:14px" id="gender-legend"></div>
+      </div>
+    </div>
+
+    <!-- Ad Set Cards — generated dynamically from D.adsets in initCharts() -->
+    <div id="adset-cards" class="mb-18" style="display:flex;flex-direction:column;gap:18px"></div>
+
+    <!-- Age + Spend bar -->
+    <div class="card">
+      <div class="card-label">Results & Spend by Age Group — Combined</div>
+      <div class="chart-wrap"><canvas id="chart-age-overview" height="200"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ════ WEEKLY PAGE ════ -->
+  <div class="page" id="page-weekly">
+    <div class="shead">
+      <div class="shead-eyebrow">Time Series</div>
+      <div class="shead-title">Weekly Performance</div>
+      <div class="shead-sub" id="weekly-sub">May 10, 2026 – May 17, 2026</div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-label">Spend per Week</div>
+        <div class="chart-wrap"><canvas id="chart-weekly-spend" height="210"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Results per Week</div>
+        <div class="chart-wrap"><canvas id="chart-weekly-results" height="210"></canvas></div>
+      </div>
+    </div>
+    <div class="table-wrap mb-24">
+      <table id="table-weekly"></table>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div class="card-label" style="margin-bottom:0" id="trend-chart-label">Cost Per Result — Day over Day</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <!-- Metric selector -->
+          <select id="trend-metric" onchange="updateTrendChart()" style="padding:5px 10px;border-radius:6px;border:1px solid #E2E5EB;background:#fff;color:#0D1526;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;outline:none">
+            <option value="cpr">Cost per Result</option>
+            <option value="results">Post Engagements</option>
+            <option value="engrate">CTR (Eng. Rate %)</option>
+            <option value="frequency">Frequency</option>
+          </select>
+          <!-- Campaign selector (always one campaign but keeps pattern) -->
+          <select id="trend-campaign" onchange="updateTrendChart()" style="padding:5px 10px;border-radius:6px;border:1px solid #E2E5EB;background:#fff;color:#0D1526;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;outline:none">
+            <option value="">All Campaigns</option>
+            <option value="Engagements_Robotna_">Engagements_Robotna_</option>
+          </select>
+          <!-- Ad Set selector -->
+          <select id="trend-adset" onchange="updateTrendChart()" style="padding:5px 10px;border-radius:6px;border:1px solid #E2E5EB;background:#fff;color:#0D1526;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;outline:none">
+            <option value="">All Ad Sets</option>
+          </select>
+          <!-- Ad selector -->
+          <select id="trend-ad" onchange="updateTrendChart()" style="padding:5px 10px;border-radius:6px;border:1px solid #E2E5EB;background:#fff;color:#0D1526;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;outline:none">
+            <option value="">All Ads</option>
+          </select>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="chart-weekly-cpr" height="180"></canvas></div>
+      <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:16px" id="weekly-cpr-legend"></div>
+    </div>
+  </div>
+
+  <!-- ════ CREATIVE PAGE ════ -->
+  <div class="page" id="page-creative">
+    <div class="shead">
+      <div class="shead-eyebrow">Creative Performance</div>
+      <div class="shead-title">Ad & Ad Set Analysis</div>
+      <div class="shead-sub">Sorted by cost per result — lower is better</div>
+    </div>
+    <div class="grid-3 mb-22">
+      <div class="score" style="background:#FEF0EB;border:1px solid rgba(232,65,10,.2)">
+        <div class="score-lbl" style="color:#E8410A">Overall CPR</div>
+        <div class="score-val">$0.001320</div>
+        <div class="score-sub">Campaign avg cost per engagement</div>
+      </div>
+      <div class="score" style="background:#ECFDF5;border:1px solid rgba(10,124,82,.2)">
+        <div class="score-lbl" style="color:#0A7C52">Best Ad CPR</div>
+        <div class="score-val">$0.001282</div>
+        <div class="score-sub">رسالة لكل أب وأم_Reel</div>
+      </div>
+      <div class="score" style="background:#EBF0F8;border:1px solid rgba(13,36,69,.2)">
+        <div class="score-lbl" style="color:#0D2445">Top Ad Spend %</div>
+        <div class="score-val">61.6%</div>
+        <div class="score-sub">لغة الأرقام_Reel — $66.52 of $107.93</div>
+      </div>
+    </div>
+    <div class="grid-3-2">
+      <div class="card">
+        <div class="card-label">Spend by Ad Creative</div>
+        <div class="chart-wrap"><canvas id="chart-ads-spend" height="240"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Cost Per Result — Ranked</div>
+        <div id="cpr-rank-list"></div>
+      </div>
+    </div>
+    <div class="shead">
+      <div class="shead-eyebrow">Ad Level</div>
+      <div class="shead-title">Full Ad Performance Table</div>
+    </div>
+    <div class="table-wrap mb-24">
+      <table id="table-ads"></table>
+    </div>
+    <div class="shead mt-24">
+      <div class="shead-eyebrow">Ad Set Level</div>
+      <div class="shead-title">Ad Set Performance</div>
+    </div>
+    <div class="table-wrap">
+      <table id="table-adsets"></table>
+    </div>
+  </div>
+
+  <!-- ════ AUDIENCE PAGE ════ -->
+  <div class="page" id="page-audience">
+    <div class="shead">
+      <div class="shead-eyebrow">Audience Analysis</div>
+      <div class="shead-title">Age & Gender Breakdown</div>
+      <div class="shead-sub">Engagement and spend by demographic segment</div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;margin-bottom:20px">
+      <div class="filter-row" style="margin-bottom:0;flex-wrap:wrap">
+        <span class="filter-lbl">Ad Set:</span>
+        <button class="filter-btn active" onclick="setAgeFilter('all',this)">All</button>
+        <span id="adset-filter-btns"></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="filter-lbl">Per Ad:</span>
+        <select id="ad-audience-select" onchange="setAdAudience(this.value)"
+          style="padding:6px 10px;border-radius:6px;border:1px solid #E2E5EB;background:#fff;color:#0D1526;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;outline:none">
+          <option value="">— All Ads —</option>
+        </select>
+      </div>
+    </div>
+    <div id="ad-audience-panel" style="display:none;margin-bottom:20px"></div>
+    <div class="grid-2 mb-22">
+      <div class="card">
+        <div class="card-label" id="age-chart-label">Results by Age Group</div>
+        <div class="chart-wrap"><canvas id="chart-age-main" height="230"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Cost Per Result — Ranked by Age</div>
+        <div id="age-rank-list"></div>
+      </div>
+    </div>
+    <div class="table-wrap mb-24">
+      <table id="table-age"></table>
+    </div>
+    <div class="shead mt-28">
+      <div class="shead-eyebrow">Gender</div>
+      <div class="shead-title">Gender Performance</div>
+    </div>
+    <div class="grid-3 mb-22">
+      <div class="gender-tile" style="background:#EBF0F8" id="gtile-0"></div>
+      <div class="gender-tile" style="background:#FEF0EB" id="gtile-1"></div>
+      <div class="gender-tile" style="background:#F5F6F8" id="gtile-2"></div>
+    </div>
+    <div class="table-wrap">
+      <table id="table-gender"></table>
+    </div>
+  </div>
+
+</div><!-- /body -->
+
+<!-- ══ MOBILE FLOATING DATE PILL ══ -->
+<div class="mobile-date-fab" id="mobile-fab">
+  <button onclick="toggleDatePicker()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:28px;background:#E8410A;color:#fff;border:none;font-size:13px;font-weight:700;font-family:inherit;box-shadow:0 4px 20px rgba(232,65,10,.4);cursor:pointer;white-space:nowrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <span id="mob-range-label">May 10 – May 17</span>
+  </button>
+</div>
+<div id="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="data:image/webp;base64,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" alt="Robotna" style="height:22px;width:auto;object-fit:contain"/>
+      <span class="footer-txt">Robotna · robotna.org · Source: Analysis-Report.csv · Account 36890470</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+      <span class="footer-txt" id="footer-range">May 10, 2026 – May 17, 2026 · No estimated values</span>
+      <span style="font-size:10px;color:#B0B8C4;font-family:'DM Mono',monospace">Created by Tawfeeq Alshobaki</span>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+
+// ══ STATIC LOOKUPS ════════════════════════════════════════════════════════════
+const GCOLS = { male:'#0D2445', female:'#7C3AED', unknown:'#C8CDD8' };
+const ALL_WEEKS = ['2026-05-07 to 2026-05-13','2026-05-14 to 2026-05-16'];
+
+// ══ FORMATTERS ════════════════════════════════════════════════════════════════
+const f$ = v => v==null?'—':'$'+v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const f$4= v => v==null?'—':'$'+v.toFixed(4);
+const fn = v => v==null?'—':v.toLocaleString();
+const fnK= v => v==null?'—':v>=1000?(v/1000).toFixed(1)+'K':String(v);
+const fpct=v => v==null?'—':v.toFixed(2)+'%';
+// Short ad-set label for disambiguation when same creative runs in multiple ad sets
+function shortAdsetTag(adset) {
+  if (!adset) return '';
+  if (adset.includes(' - Custom')) return 'Custom';
+  const parts = adset.split('_');
+  return parts[1] || parts[0]; // e.g. "Broad" from DM_Broad_AMM_ZAR_IRB
+}
+
+function prettyDate(iso) {
+  if(!iso) return '';
+  const [y,m,d] = iso.split('-').map(Number);
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${months[m-1]} ${d}, ${y}`;
+}
+
+// ══ FILTER ROWS BY DATE RANGE ═════════════════════════════════════════════════
+// A row belongs to the selected range if the week overlaps the selected range.
+// Since data is weekly: include row if ws <= until AND we >= since
+function filterRows(since, until) {
+  return RAW_DATA.filter(r => r.day >= since && r.day <= until);
+}
+
+// ══ AGGREGATE ════════════════════════════════════════════════════════════════
+function agg(rows) {
+  let spend=0, results=0, impressions=0, reach=0;
+  rows.forEach(r=>{ spend+=r.spend; results+=r.results; impressions+=r.impressions; reach+=r.reach; });
+  return { spend:parseFloat(spend.toFixed(4)), results, impressions, reach,
+           cpr: results>0 ? spend/results : null };
+}
+
+function groupBy(rows, key) {
+  const m = {};
+  rows.forEach(r => {
+    const k = r[key];
+    if(!m[k]) m[k] = [];
+    m[k].push(r);
+  });
+  return m;
+}
+
+// ══ BUILD COMPUTED DATASET FROM FILTERED ROWS ════════════════════════════════
+function computeData(since, until) {
+  const rows = filterRows(since, until);
+  const core = agg(rows);
+  core.engRate = core.impressions>0 ? parseFloat((core.results/core.impressions*100).toFixed(4)) : 0;
+
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  // Daily breakdown (one entry per day)
+  const byDay = groupBy(rows, 'day');
+  const daily = Object.keys(byDay).sort().map(day => {
+    const d = new Date(day + 'T00:00:00');
+    return { week: `${MONTHS[d.getMonth()]} ${d.getDate()}`, ws: day, we: day, ...agg(byDay[day]) };
+  });
+
+  // Weekly grouping — Mon–Sun calendar weeks
+  function weekMonday(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00');
+    const dow = d.getDay(); // 0=Sun
+    d.setDate(d.getDate() - (dow === 0 ? 6 : dow - 1));
+    return d.toISOString().slice(0, 10);
+  }
+  const byWeek = {};
+  Object.keys(byDay).sort().forEach(day => {
+    const ws = weekMonday(day);
+    (byWeek[ws] = byWeek[ws] || []).push(...byDay[day]);
+  });
+  const weekly = Object.keys(byWeek).sort().map(ws => {
+    const weDate = new Date(ws + 'T00:00:00');
+    weDate.setDate(weDate.getDate() + 6);
+    const we = weDate.toISOString().slice(0, 10);
+    const wsD = new Date(ws + 'T00:00:00');
+    const label = wsD.getMonth() === weDate.getMonth()
+      ? `${MONTHS[wsD.getMonth()]} ${wsD.getDate()}–${weDate.getDate()}`
+      : `${MONTHS[wsD.getMonth()]} ${wsD.getDate()} – ${MONTHS[weDate.getMonth()]} ${weDate.getDate()}`;
+    return { week: label, ws, we, ...agg(byWeek[ws]) };
+  });
+
+  // Adsets
+  const byAdset = groupBy(rows, 'adset');
+  const adsets = Object.keys(byAdset).map(name => {
+    const asRows = byAdset[name];
+    // Active status driven by delivery field in RAW_DATA (set during CSV import in portal)
+    const deliveryVals = asRows.map(r => (r.delivery || '').toLowerCase()).filter(Boolean);
+    const active = deliveryVals.some(v => v === 'active');
+    return { name, active, ...agg(asRows) };
+  }).sort((a,b)=>b.spend-a.spend);
+
+  // Ads — keyed by ad+adset composite so the same creative in different ad sets
+  // stays separate (Meta tracks them as distinct delivery units with different CPR)
+  const SEP = '|||';
+  const byAdKey = {};
+  rows.forEach(r => {
+    const k = r.ad + SEP + r.adset;
+    (byAdKey[k] = byAdKey[k] || []).push(r);
+  });
+  const ads = Object.keys(byAdKey).map(k => {
+    const sep = k.indexOf(SEP);
+    const name  = k.slice(0, sep);
+    const adset = k.slice(sep + SEP.length);
+    return { name, adset, key: k, ...agg(byAdKey[k]) };
+  }).sort((a,b) => b.spend - a.spend);
+
+  // Age
+  const byAge = groupBy(rows, 'age');
+  const ageOrder = ['18-24','25-34','35-44','45-54','55-64','65+'];
+  const age = ageOrder.filter(s=>byAge[s]).map(s=>({ seg:s, ...agg(byAge[s]) }));
+
+  // Gender
+  const byGender = groupBy(rows, 'gender');
+  const genderOrder = ['male','female','unknown'];
+  const gender = genderOrder.filter(s=>byGender[s]).map(s=>({
+    seg: s.charAt(0).toUpperCase()+s.slice(1), ...agg(byGender[s])
+  }));
+
+  // Age by adset
+  const ageByAdset = {};
+  Object.keys(byAdset).forEach(adsetName => {
+    const asetRows = byAdset[adsetName];
+    const byA = groupBy(asetRows, 'age');
+    ageByAdset[adsetName] = ageOrder.filter(s=>byA[s]).map(s=>({ seg:s, ...agg(byA[s]) }));
+  });
+
+  // Ads audience — keyed by the same composite key (ad|||adset)
+  const adsAudience = {};
+  Object.keys(byAdKey).forEach(k => {
+    const byA = groupBy(byAdKey[k], 'age');
+    adsAudience[k] = ageOrder.filter(s=>byA[s]).map(s=>({ seg:s, ...agg(byA[s]) }));
+  });
+
+  return { core, daily, weekly, adsets, ads, age, gender, ageByAdset, adsAudience };
+}
+
+// ══ SYNC DATE RANGE FROM RAW_DATA ══════════════════════════════════════════════
+// Derive since/until from the actual earliest and latest days in RAW_DATA so
+// presets like "All days" always cover the full dataset automatically.
+(function() {
+  const days = RAW_DATA.map(r => r.day).filter(Boolean);
+  if (!days.length) return;
+  const earliest = days.reduce((min, d) => d < min ? d : min, days[0]);
+  const latest   = days.reduce((max, d) => d > max ? d : max, days[0]);
+  CAMPAIGN_META.since = earliest;
+  CAMPAIGN_META.until = latest;
+})();
+
+// ══ STATE ══════════════════════════════════════════════════════════════════════
+let currentRange = { since: CAMPAIGN_META.since, until: CAMPAIGN_META.until };
+let currentAgeFilter = 'all';
+let D = computeData(currentRange.since, currentRange.until); // current dataset
+const charts = {};
+
+// ══ CHART DEFAULTS ════════════════════════════════════════════════════════════
+Chart.defaults.font.family = "'DM Mono', monospace";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#7A8595';
+
+function chartOpts(extra={}) {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins:{ legend:{display:false}, tooltip:{
+      backgroundColor:'#0D2445', titleColor:'rgba(255,255,255,.5)',
+      bodyColor:'#fff', padding:10, cornerRadius:8,
+      titleFont:{family:"'DM Mono',monospace",size:11},
+      bodyFont:{family:"'DM Mono',monospace",size:12,weight:'bold'},
+    }},
+    scales:{
+      x:{ grid:{display:false}, border:{display:false}, ticks:{color:'#7A8595'} },
+      y:{ grid:{color:'#EDF0F5'}, border:{display:false}, ticks:{color:'#7A8595'} },
+    },
+    ...extra
+  };
+}
+
+
+function setSpendView(mode, btn) {
+  document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const c = charts.weeklyOverview;
+  const titles = {weekly:'Spend vs Results — By Week', daily:'Spend vs Results — By Day', adset:'Spend vs Results — By Ad Set'};
+  document.getElementById('spend-chart-title').textContent = titles[mode];
+  const src = mode==='adset'
+    ? D.adsets.map(a=>({lbl:a.name.length>18?a.name.slice(0,18)+'…':a.name, spend:a.spend, results:a.results}))
+    : (mode==='daily' ? D.daily : D.weekly).map(w=>({lbl:w.week, spend:w.spend, results:w.results}));
+  c.data.labels = src.map(s=>s.lbl);
+  c.data.datasets[0].data = src.map(s=>s.spend);
+  c.data.datasets[1].data = src.map(s=>s.results);
+  c.update();
+}
+
+// ══ INIT CHARTS ═══════════════════════════════════════════════════════════════
+function initCharts() {
+  destroyCharts();
+  const m = D.core;
+
+  // ── Update tab meta summary ───────────────────────────────────────────────
+  const tabMeta = document.getElementById('tab-meta');
+  if(tabMeta) tabMeta.textContent = `${D.weekly.length} week${D.weekly.length!==1?'s':''} · ${D.adsets.length} ad set${D.adsets.length!==1?'s':''} · ${D.ads.length} ad${D.ads.length!==1?'s':''}`;
+
+  // ── Update KPI cards ──────────────────────────────────────────────────────
+  document.querySelector('.kpi-accent .kpi-val').textContent = f$(m.spend);
+  document.querySelector('.kpi-accent .kpi-sub').textContent = `${f$(m.spend/Math.max(D.daily.length,1))} avg / day`;
+  const kpis = document.querySelectorAll('.kpi-navy,.kpi-default');
+  if(kpis[0]){ kpis[0].querySelector('.kpi-val').textContent=fnK(m.reach); kpis[0].querySelector('.kpi-sub').textContent=`${fnK(m.impressions)} total impressions`; }
+  if(kpis[1]){ kpis[1].querySelector('.kpi-val').textContent=fnK(m.results); kpis[1].querySelector('.kpi-sub').textContent=`${f$4(m.cpr)} cost per result`; }
+  if(kpis[2]){ kpis[2].querySelector('.kpi-val').textContent=fpct(m.engRate); }
+
+  // ── Render adset mini-cards dynamically (works for any number of ad sets) ──
+  const CHIP_COLORS = [
+    {c:'#E8410A',bg:'#FEF0EB'}, {c:'#0D2445',bg:'#EBF0F8'},
+    {c:'#0A7C52',bg:'#ECFDF5'}, {c:'#7C3AED',bg:'#F5F3FF'},
+  ];
+  document.getElementById('adset-cards').innerHTML = D.adsets.map((as, i) => {
+    const {c, bg} = CHIP_COLORS[i % CHIP_COLORS.length];
+    const statusBadge = as.active
+      ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:#0A7C52;background:#ECFDF5;border:1px solid #6EE7B7;border-radius:20px;padding:2px 8px;letter-spacing:.04em">
+          <span style="width:6px;height:6px;border-radius:50%;background:#0A7C52;display:inline-block"></span>Active
+         </span>`
+      : `<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:#7A8595;background:#F3F4F6;border:1px solid #D1D5DB;border-radius:20px;padding:2px 8px;letter-spacing:.04em">
+          <span style="width:6px;height:6px;border-radius:50%;background:#9CA3AF;display:inline-block"></span>Inactive
+         </span>`;
+    return `<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="card-label">Ad Set</div>
+            ${statusBadge}
+          </div>
+          <div style="font-size:15px;font-weight:700;color:#0D1526">${as.name}</div>
+        </div>
+        <span class="chip" style="color:${c};background:${bg}">${fpct(as.spend/m.spend*100)} of spend</span>
+      </div>
+      <div class="adset-mini-grid">
+        <div class="adset-mini"><div class="adset-mini-lbl">Spend</div><div class="adset-mini-val">${f$(as.spend)}</div></div>
+        <div class="adset-mini"><div class="adset-mini-lbl">Results</div><div class="adset-mini-val">${fn(as.results)}</div></div>
+        <div class="adset-mini"><div class="adset-mini-lbl">CPR</div><div class="adset-mini-val green">${f$4(as.cpr)}</div></div>
+        <div class="adset-mini"><div class="adset-mini-lbl">Reach</div><div class="adset-mini-val">${fnK(as.reach)}</div></div>
+        <div class="adset-mini"><div class="adset-mini-lbl">Impressions</div><div class="adset-mini-val">${fnK(as.impressions)}</div></div>
+        <div class="adset-mini"><div class="adset-mini-lbl">Eng. Rate</div><div class="adset-mini-val">${fpct(as.results/as.impressions*100)}</div></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // ── Rebuild audience ad-set filter buttons ────────────────────────────────
+  const filterSpan = document.getElementById('adset-filter-btns');
+  filterSpan.innerHTML = '';
+  D.adsets.forEach(as => {
+    const label = as.name.includes(' - Custom')
+      ? as.name.split('_')[0] + '_Custom'
+      : as.name.split('_')[0];
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn';
+    btn.textContent = label;
+    btn.onclick = function() { setAgeFilter(as.name, this); };
+    filterSpan.appendChild(btn);
+  });
+
+  // ── Update creative score tiles ───────────────────────────────────────────
+  // adNameCounts: number of ad-adset pairs per creative name (>1 = same creative in multiple ad sets)
+  const adNameCounts = D.ads.reduce((m,a)=>(m[a.name]=(m[a.name]||0)+1,m), {});
+  function adDisplayName(a) {
+    return adNameCounts[a.name] > 1 ? `${a.name} (${shortAdsetTag(a.adset)})` : a.name;
+  }
+  const bestAd = D.ads.filter(a=>a.cpr).reduce((b,a)=>(!b||a.cpr<b.cpr)?a:b, null);
+  const topAd  = D.ads.reduce((b,a)=>a.spend>b.spend?a:b, D.ads[0]);
+  const tiles  = document.querySelectorAll('.score-val');
+  if(tiles[0]) tiles[0].textContent = f$4(m.cpr);
+  if(tiles[1]) { tiles[1].textContent = f$4(bestAd?.cpr); tiles[1].nextElementSibling&&(tiles[1].nextElementSibling.textContent=bestAd?adDisplayName(bestAd):''); }
+  if(tiles[2]) { tiles[2].textContent = fpct(topAd?.spend/m.spend*100); tiles[2].nextElementSibling&&(tiles[2].nextElementSibling.textContent=topAd?`${adDisplayName(topAd)} — ${f$(topAd.spend)} of ${f$(m.spend)}`:''); }
+
+  // ── Weekly overview bar ───────────────────────────────────────────────────
+  charts.weeklyOverview = new Chart(document.getElementById('chart-weekly-overview'), {
+    type:'bar',
+    data:{
+      labels: D.weekly.map(w=>w.week),
+      datasets:[
+        { label:'Spend ($)', data:D.weekly.map(w=>w.spend), backgroundColor:'#E8410A', borderRadius:4, yAxisID:'y', order:1 },
+        { label:'Results',   data:D.weekly.map(w=>w.results), backgroundColor:'#0D2445', borderRadius:4, yAxisID:'y2', order:2 },
+      ]
+    },
+    options:{...chartOpts(), scales:{
+      x:{ grid:{display:false}, border:{display:false}, ticks:{color:'#7A8595'} },
+      y:{ grid:{color:'#EDF0F5'}, border:{display:false}, ticks:{color:'#7A8595'}, position:'left' },
+      y2:{ grid:{display:false}, border:{display:false}, ticks:{color:'#7A8595',callback:v=>fnK(v)}, position:'right' },
+    }}
+  });
+
+  // ── Gender donut ──────────────────────────────────────────────────────────
+  charts.genderDonut = new Chart(document.getElementById('chart-gender-donut'), {
+    type:'doughnut',
+    data:{
+      labels:D.gender.map(g=>g.seg),
+      datasets:[{ data:D.gender.map(g=>g.results), backgroundColor:D.gender.map(g=>GCOLS[g.seg.toLowerCase()]||'#ccc'), borderWidth:2, borderColor:'#fff', hoverOffset:4 }]
+    },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'65%',
+      plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#0D2445', bodyColor:'#fff', padding:10, cornerRadius:8,
+        bodyFont:{family:"'DM Mono',monospace",size:12,weight:'bold'},
+        callbacks:{label:ctx=>`${ctx.label}: ${fn(ctx.raw)}`} }} }
+  });
+  document.getElementById('gender-legend').innerHTML = D.gender.map(g=>`
+    <div class="gender-row">
+      <div class="gender-dot" style="background:${GCOLS[g.seg.toLowerCase()]||'#ccc'}"></div>
+      <span class="gender-name">${g.seg}</span>
+      <span class="gender-num">${fn(g.results)}</span>
+      <span class="gender-pct">${fpct(g.spend/m.spend*100)}</span>
+    </div>`).join('');
+
+  // ── Age overview bar ──────────────────────────────────────────────────────
+  charts.ageOverview = new Chart(document.getElementById('chart-age-overview'), {
+    type:'bar',
+    data:{ labels:D.age.map(a=>a.seg), datasets:[
+      { label:'Results', data:D.age.map(a=>a.results), backgroundColor:'#E8410A', borderRadius:4, barPercentage:.4 },
+      { label:'Spend',   data:D.age.map(a=>a.spend),   backgroundColor:'#0D2445', borderRadius:4, barPercentage:.4 },
+    ]},
+    options:{...chartOpts(), scales:{
+      x:{ grid:{display:false}, border:{display:false}, ticks:{color:'#7A8595'} },
+      y:{ grid:{color:'#EDF0F5'}, border:{display:false}, ticks:{color:'#7A8595',callback:v=>fnK(v)} },
+    }}
+  });
+
+  // ── Weekly tab charts ─────────────────────────────────────────────────────
+  charts.weeklySpend = new Chart(document.getElementById('chart-weekly-spend'), {
+    type:'bar',
+    data:{ labels:D.weekly.map(w=>w.week), datasets:[{ label:'Spend ($)', data:D.weekly.map(w=>w.spend), backgroundColor:'#E8410A', borderRadius:4, barPercentage:.5 }] },
+    options: chartOpts()
+  });
+  charts.weeklyResults = new Chart(document.getElementById('chart-weekly-results'), {
+    type:'bar',
+    data:{ labels:D.weekly.map(w=>w.week), datasets:[{ label:'Results', data:D.weekly.map(w=>w.results), backgroundColor:'#0D2445', borderRadius:4, barPercentage:.5 }] },
+    options:{...chartOpts(), scales:{
+      x:{ grid:{display:false}, border:{display:false}, ticks:{color:'#7A8595'} },
+      y:{ grid:{color:'#EDF0F5'}, border:{display:false}, ticks:{color:'#7A8595',callback:v=>fnK(v)} },
+    }}
+  });
+  const cprMin = Math.min(...D.weekly.map(w=>w.cpr).filter(Boolean)) * 0.98;
+  const cprMax = Math.max(...D.weekly.map(w=>w.cpr).filter(Boolean)) * 1.02;
+  charts.weeklyCPR = new Chart(document.getElementById('chart-weekly-cpr'), {
+    type:'line',
+    data:{ labels:[], datasets:[{ label:'', data:[], borderColor:'#0A7C52', backgroundColor:'rgba(10,124,82,.1)', borderWidth:2.5, pointRadius:5, pointBackgroundColor:'#0A7C52', fill:true, tension:.3 }] },
+    options:{...chartOpts(), scales:{
+      x:{ grid:{display:false}, border:{display:false}, ticks:{color:'#7A8595'} },
+      y:{ grid:{color:'#EDF0F5'}, border:{display:false}, ticks:{color:'#7A8595'} },
+    }}
+  });
+
+  // Populate entity dropdowns
+  populateTrendDropdowns();
+  // Draw initial state
+  updateTrendChart();
+
+  // ── Ads horizontal bar ────────────────────────────────────────────────────
+  function adLabel(a, maxLen=22) {
+    const base = a.name.length > maxLen ? a.name.slice(0, maxLen)+'…' : a.name;
+    return adNameCounts[a.name] > 1 ? base + ' · ' + shortAdsetTag(a.adset) : base;
+  }
+  charts.adsSpend = new Chart(document.getElementById('chart-ads-spend'), {
+    type:'bar',
+    data:{
+      labels:D.ads.map(a=>adLabel(a)),
+      datasets:[{ label:'Spend ($)', data:D.ads.map(a=>a.spend), backgroundColor:'#E8410A', borderRadius:4, barPercentage:.6 }]
+    },
+    options:{...chartOpts(), indexAxis:'y', scales:{
+      x:{ grid:{color:'#EDF0F5'}, border:{display:false}, ticks:{color:'#7A8595',callback:v=>'$'+v} },
+      y:{ grid:{display:false}, border:{display:false}, ticks:{color:'#7A8595'} },
+    }}
+  });
+  document.getElementById('cpr-rank-list').innerHTML = [...D.ads].filter(a=>a.cpr).sort((a,b)=>a.cpr-b.cpr).map((ad,i)=>`
+    <div class="cpr-rank-item">
+      <div class="cpr-rank-top">
+        <span class="cpr-rank-name">${ad.name}${adNameCounts[ad.name]>1?` <span style="font-size:10px;color:#7A8595;font-weight:400">(${shortAdsetTag(ad.adset)})</span>`:''}</span>
+        <span class="cpr-rank-val" style="color:${i===0?'#0A7C52':'#0D1526'}">${f$4(ad.cpr)}${i===0?' ▲':''}</span>
+      </div>
+      <div class="cpr-rank-bot">
+        <span class="cpr-rank-meta">${f$(ad.spend)} spend</span>
+        <span class="cpr-rank-meta">${fn(ad.results)} results</span>
+      </div>
+    </div>`).join('');
+
+  // ── Age chart ─────────────────────────────────────────────────────────────
+  renderAgeCharts(currentAgeFilter);
+
+  // ── Gender tiles ──────────────────────────────────────────────────────────
+  D.gender.forEach((g,i)=>{
+    const el = document.getElementById(`gtile-${i}`);
+    if(!el) return;
+    el.innerHTML = `
+      <div class="gender-tile-header">
+        <div class="gender-dot-lg" style="background:${GCOLS[g.seg.toLowerCase()]||'#ccc'}"></div>
+        <span class="gender-tile-name">${g.seg}</span>
+      </div>
+      <div class="gender-tile-val">${fn(g.results)}</div>
+      <div class="gender-tile-lbl">results</div>
+      <div class="gender-tile-footer">
+        <div><div class="gender-tile-stat-lbl">SPEND</div><div class="gender-tile-stat-val" style="color:#0D1526">${f$(g.spend)}</div></div>
+        <div><div class="gender-tile-stat-lbl">CPR</div><div class="gender-tile-stat-val" style="color:#0A7C52">${f$4(g.cpr)}</div></div>
+      </div>`;
+  });
+
+  // ── Tables ────────────────────────────────────────────────────────────────
+  const tCols = [
+    {k:'week',label:'Period'},{k:'spend',label:'Spend',fmt:f$,r:true},
+    {k:'results',label:'Results',fmt:fn,r:true},{k:'impressions',label:'Impressions',fmt:fn,r:true},
+    {k:'reach',label:'Reach',fmt:fn,r:true},{k:'cpr',label:'Cost/Result',fmt:f$4,r:true},
+  ];
+  buildTable('table-weekly', tCols, D.weekly, 'cpr');
+  buildTable('table-ads', [
+    {k:'name',label:'Ad Creative'},{k:'adset',label:'Ad Set'},
+    {k:'spend',label:'Spend',fmt:f$,r:true},{k:'results',label:'Results',fmt:fn,r:true},
+    {k:'impressions',label:'Impressions',fmt:fn,r:true},{k:'reach',label:'Reach',fmt:fn,r:true},
+    {k:'cpr',label:'Cost/Result',fmt:f$4,r:true},
+  ], D.ads, 'cpr');
+  buildTable('table-adsets', [
+    {k:'name',label:'Ad Set'},{k:'spend',label:'Spend',fmt:f$,r:true},
+    {k:'results',label:'Results',fmt:fn,r:true},{k:'impressions',label:'Impressions',fmt:fn,r:true},
+    {k:'reach',label:'Reach',fmt:fn,r:true},{k:'cpr',label:'Cost/Result',fmt:f$4,r:true},
+  ], D.adsets, 'cpr');
+  buildTable('table-gender', [
+    {k:'seg',label:'Gender'},{k:'spend',label:'Spend',fmt:f$,r:true},
+    {k:'results',label:'Results',fmt:fn,r:true},{k:'impressions',label:'Impressions',fmt:fn,r:true},
+    {k:'reach',label:'Reach',fmt:fn,r:true},{k:'cpr',label:'Cost/Result',fmt:f$4,r:true},
+  ], D.gender, 'cpr');
+
+  // ── Refresh ad audience dropdown ─────────────────────────────────────────
+  initAdAudienceSelect();
+}
+
+function destroyCharts() {
+  Object.values(charts).forEach(c=>c&&c.destroy());
+  Object.keys(charts).forEach(k=>delete charts[k]);
+}
+
+// ══ AGE CHART (filterable) ════════════════════════════════════════════════════
+function renderAgeCharts(filter) {
+  const data = filter==='all' ? D.age : (D.ageByAdset[filter]||D.age);
+  const maxR = Math.max(...data.map(a=>a.results), 1);
+  if(charts.ageMain) charts.ageMain.destroy();
+  charts.ageMain = new Chart(document.getElementById('chart-age-main'), {
+    type:'bar',
+    data:{ labels:data.map(a=>a.seg), datasets:[
+      { label:'Results', data:data.map(a=>a.results), backgroundColor:'#E8410A', borderRadius:4, barPercentage:.4 },
+      { label:'Spend',   data:data.map(a=>a.spend),   backgroundColor:'#0D2445', borderRadius:4, barPercentage:.4 },
+    ]},
+    options:{...chartOpts(), scales:{
+      x:{ grid:{display:false}, border:{display:false}, ticks:{color:'#7A8595'} },
+      y:{ grid:{color:'#EDF0F5'}, border:{display:false}, ticks:{color:'#7A8595',callback:v=>fnK(v)} },
+    }}
+  });
+  const sorted = [...data].sort((a,b)=>(a.cpr||99)-(b.cpr||99));
+  document.getElementById('age-rank-list').innerHTML = sorted.map((a,i)=>`
+    <div class="age-rank-row">
+      <span class="age-seg">${a.seg}</span>
+      <div class="age-bar-wrap">
+        <div class="age-bar" style="width:${maxR>0?a.results/maxR*100:0}%;background:${i===0?'#0A7C52':'#E8410A'}"></div>
+      </div>
+      <span class="age-cpr" style="color:${i===0?'#0A7C52':'#0D1526'}">${f$4(a.cpr)}</span>
+      ${i===0?'<span class="chip age-best-chip" style="color:#0A7C52;background:#ECFDF5">Best</span>':''}
+    </div>`).join('');
+  buildTable('table-age', [
+    {k:'seg',label:filter==='all'?'Age Group':`Age (${filter})`},
+    {k:'spend',label:'Spend',fmt:f$,r:true},{k:'results',label:'Results',fmt:fn,r:true},
+    {k:'impressions',label:'Impressions',fmt:fn,r:true},{k:'reach',label:'Reach',fmt:fn,r:true},
+    {k:'cpr',label:'Cost/Result',fmt:f$4,r:true},
+  ], data, 'cpr');
+}
+
+// ══ SORTABLE TABLE BUILDER ════════════════════════════════════════════════════
+function buildTable(id, cols, data, bestKey) {
+  const el = document.getElementById(id);
+  const vals = bestKey ? data.map(r=>r[bestKey]).filter(v=>v!=null) : [];
+  const best = vals.length ? Math.min(...vals) : null;
+  let sortKey=null, sortDir='desc';
+
+  function render(rows) {
+    const bestVal = bestKey ? Math.min(...rows.map(r=>r[bestKey]).filter(v=>v!=null)) : null;
+    el.innerHTML = `
+      <thead><tr>${cols.map(c=>`
+        <th data-k="${c.k}" class="" style="text-align:${c.r?'right':'left'}">${c.label}</th>
+      `).join('')}</tr></thead>
+      <tbody>${rows.map((r,i)=>{
+        const isBest = bestKey && r[bestKey]===bestVal;
+        return `<tr class="${isBest?'best-row':i%2?'alt-row':''}">${cols.map(c=>`
+          <td class="${c.r?'num':''}" style="${c.r?'text-align:right':''}">
+            ${c.fmt?c.fmt(r[c.k]):(r[c.k]??'—')}
+            ${c.k===bestKey&&isBest?'<span class="best-badge">▲ Best</span>':''}
+          </td>`).join('')}</tr>`;
+      }).join('')}</tbody>`;
+
+    // Sort headers
+    el.querySelectorAll('th').forEach(th=>{
+      th.addEventListener('click',()=>{
+        const k = th.dataset.k;
+        if(sortKey===k) sortDir = sortDir==='asc'?'desc':'asc';
+        else { sortKey=k; sortDir='desc'; }
+        el.querySelectorAll('th').forEach(t=>t.className='');
+        th.className = 'sort-'+sortDir;
+        const sorted = [...rows].sort((a,b)=>{
+          const [av,bv]=[a[k],b[k]];
+          if(av==null)return 1; if(bv==null)return -1;
+          if(typeof av==='number') return sortDir==='asc'?av-bv:bv-av;
+          return sortDir==='asc'?String(av).localeCompare(String(bv)):String(bv).localeCompare(String(av));
+        });
+        render(sorted);
+      });
+    });
+  }
+  render(data);
+}
+
+// ══ TAB SWITCHING ════════════════════════════════════════════════════════════
+function setTab(id, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ══ AGE FILTER ════════════════════════════════════════════════════════════════
+function setAgeFilter(filter, btn) {
+  currentAgeFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('age-chart-label').textContent =
+    'Results by Age Group' + (filter!=='all'?` — ${filter}`:'');
+  renderAgeCharts(filter);
+}
+
+// ══ DATE PICKER ═══════════════════════════════════════════════════════════════
+function toggleDatePicker() {
+  const pop = document.getElementById('date-popover');
+  const isOpen = pop.classList.contains('open');
+  if(isOpen){ closeDatePicker(); return; }
+  pop.classList.add('open');
+  const trig = document.getElementById('date-trigger');
+  if(trig) trig.classList.add('open');
+  const arr = document.getElementById('picker-arrow');
+  if(arr) arr.textContent = '▲';
+}
+
+function closeDatePicker() {
+  const pop = document.getElementById('date-popover');
+  if(pop) pop.classList.remove('open');
+  const trig = document.getElementById('date-trigger');
+  if(trig) trig.classList.remove('open');
+  const arr = document.getElementById('picker-arrow');
+  if(arr) arr.textContent = '▼';
+  const err = document.getElementById('date-error');
+  if(err) err.style.display = 'none';
+}
+
+function applyPreset(since, until, btn) {
+  document.getElementById('date-since').value = since;
+  document.getElementById('date-until').value = until;
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function applyDateRange() {
+  const since = document.getElementById('date-since').value;
+  const until = document.getElementById('date-until').value;
+  const errEl = document.getElementById('date-error');
+  if(!since||!until){ errEl.textContent='⚠ Both dates are required.'; errEl.style.display='flex'; return; }
+  if(since>until){ errEl.textContent='⚠ Start date must be before end date.'; errEl.style.display='flex'; return; }
+  errEl.style.display='none';
+  currentRange = { since, until };
+  // Recompute dataset from raw data
+  D = computeData(since, until);
+  const label = `${prettyDate(since)} – ${prettyDate(until)}`;
+  document.getElementById('range-label').textContent = label;
+  const mobEl = document.getElementById('mob-range-label');
+  if(mobEl){ const s=prettyDate(since).replace(', 2026',''), u=prettyDate(until).replace(', 2026',''); mobEl.textContent=`${s} – ${u}`; }
+  document.getElementById('header-range').textContent = `robotna.org · ${label} · ${CAMPAIGN_META.goal}`;
+  document.getElementById('notice-range').textContent = `Reporting period: ${label}`;
+  document.getElementById('weekly-sub').textContent = `${label}`;
+  document.getElementById('footer-range').textContent = `${label} · ${fn(D.core.results)} engagements · No estimated values`;
+  // Reset view toggles
+  currentAgeFilter = 'all';
+  document.querySelectorAll('.filter-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
+  document.getElementById('ad-audience-panel').style.display='none';
+  document.getElementById('ad-audience-select').value='';
+  // Redraw everything
+  initCharts();
+  closeDatePicker();
+}
+
+// Close picker on outside click
+document.addEventListener('click', e=>{
+  const pop = document.getElementById('date-popover');
+  if(!pop || !pop.classList.contains('open')) return;
+  const trig = document.getElementById('date-trigger');
+  const fab  = document.getElementById('mobile-fab');
+  const inPop  = pop.contains(e.target);
+  const inTrig = trig && trig.contains(e.target);
+  const inFab  = fab  && fab.contains(e.target);
+  if(!inPop && !inTrig && !inFab) closeDatePicker();
+}, true);
+
+// ══ EXPORT JSON ═══════════════════════════════════════════════════════════════
+
+// ══ DOWNLOAD PDF (jsPDF vertical A4) ═════════════════════════════════════════
+function downloadPDF() {
+  const label = document.getElementById('range-label').textContent;
+
+  // ── Shared styles ─────────────────────────────────────────────────────────
+  const S = {
+    wrap:  'font-family:"Plus Jakarta Sans",-apple-system,sans-serif;color:#0D1526;background:#fff;width:794px;max-width:794px;overflow:hidden;padding:48px 56px;box-sizing:border-box;font-size:12px',
+    hdr:   'background:#E8410A;margin:-48px -56px 28px;padding:14px 56px;display:flex;justify-content:space-between;align-items:center',
+    sec:   'background:#FEF0EB;border-left:4px solid #E8410A;padding:6px 12px;margin:20px 0 8px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#E8410A',
+    th:    'background:#0D2445;color:#fff;padding:7px 10px;font-size:10px;font-weight:700;letter-spacing:.04em;white-space:nowrap;text-align:right',
+    td:    'padding:7px 10px;border-bottom:1px solid #E2E5EB;text-align:right',
+    tdAr:  'padding:7px 10px;border-bottom:1px solid #E2E5EB;text-align:right;direction:rtl',
+    best:  'background:#ECFDF5;color:#0A7C52;font-weight:700',
+    alt:   'background:#F9FAFB',
+  };
+
+  // ── Table builder — Arabic cells use direction:rtl ────────────────────────
+  function tbl(cols, rows, bestMetricIdx) {
+    const vals = bestMetricIdx != null ? rows.map(r => parseFloat(r[bestMetricIdx]) || 99) : [];
+    const minV = vals.length ? Math.min(...vals) : null;
+    const hdrs = cols.map(c => `<th style="${S.th}">${c}</th>`).join('');
+    const body = rows.map((r, ri) => {
+      const isBest = bestMetricIdx != null && (parseFloat(r[bestMetricIdx]) || 99) === minV;
+      const cells = r.map((cell, ci) => {
+        const isAr = /[؀-ۿ]/.test(cell);
+        const bg   = isBest ? S.best : ri % 2 ? S.alt : '';
+        const base = isAr ? S.tdAr : S.td;
+        const mark = isBest && ci === bestMetricIdx ? ' ▲' : '';
+        return `<td style="${base};${bg}">${cell}${mark}</td>`;
+      }).join('');
+      return `<tr>${cells}</tr>`;
+    }).join('');
+    return `<table style="width:100%;border-collapse:collapse;margin-bottom:16px"><thead><tr>${hdrs}</tr></thead><tbody>${body}</tbody></table>`;
+  }
+
+  function sec(t) { return `<div style="${S.sec}">${t}</div>`; }
+
+  // ── KPI row ───────────────────────────────────────────────────────────────
+  const kpis = [
+    ['Total Spend', f$(D.core.spend),   '#FEF0EB', '#E8410A'],
+    ['Reach',       fn(D.core.reach),   '#EBF0F8', '#0D2445'],
+    ['Engagements', fn(D.core.results), '#F9FAFB', '#0D1526'],
+    ['Eng. Rate',   fpct(D.core.engRate),'#ECFDF5','#0A7C52'],
+  ];
+  const kpiHtml = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
+    ${kpis.map(([l,v,bg,c]) => `<div style="background:${bg};border-radius:8px;padding:12px 14px">
+      <div style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#7A8595;margin-bottom:5px">${l}</div>
+      <div style="font-size:20px;font-weight:800;color:${c};letter-spacing:-.01em">${v}</div>
+    </div>`).join('')}
+  </div>`;
+
+  // ── Page 1: header + KPIs + daily + adsets ────────────────────────────────
+  const page1 = `<div style="${S.wrap}">
+    <div style="${S.hdr}">
+      <span style="color:#fff;font-size:13px;font-weight:800">Robotna — Campaign Analytics</span>
+      <span style="color:rgba(255,255,255,.8);font-size:11px">${label}</span>
+    </div>
+    <div style="font-size:22px;font-weight:800;color:#0D2445;letter-spacing:-.01em">Campaign Performance Report</div>
+    <div style="font-size:12px;color:#3D4A5C;margin-top:4px;margin-bottom:16px">Meta Ads · Paid Engagement · Engagements_Robotna_</div>
+    <div style="height:1px;background:#E2E5EB;margin-bottom:20px"></div>
+    ${kpiHtml}
+    ${sec('Daily Performance')}
+    ${tbl(['Day','Spend','Results','Impressions','Reach','CPR'],
+      D.weekly.map(w=>[w.week,f$(w.spend),fn(w.results),fn(w.impressions),fn(w.reach),f$4(w.cpr)]), 5)}
+    ${sec('Ad Set Performance')}
+    ${tbl(['Ad Set','Spend','Results','Impressions','Reach','CPR'],
+      D.adsets.map(a=>[a.name,f$(a.spend),fn(a.results),fn(a.impressions),fn(a.reach),f$4(a.cpr)]), 5)}
+    <div style="margin-top:24px;padding-top:10px;border-top:1px solid #E2E5EB;font-size:9px;color:#B0B8C4;display:flex;justify-content:space-between">
+      <span>Robotna · robotna.org · Source: Analysis-Report.csv · Account 36890470</span>
+      <span>Created by Tawfeeq Alshobaki · No estimated values</span>
+    </div>
+  </div>`;
+
+  // ── Page 2: ads + age + gender ────────────────────────────────────────────
+  const page2 = `<div style="${S.wrap}">
+    <div style="${S.hdr}">
+      <span style="color:#fff;font-size:13px;font-weight:800">Robotna — Campaign Analytics</span>
+      <span style="color:rgba(255,255,255,.8);font-size:11px">${label}</span>
+    </div>
+    ${sec('Ad-Level Performance — Sorted by CPR')}
+    ${tbl(['Ad Creative','Ad Set','Spend','Results','Impressions','Reach','CPR'],
+      [...D.ads].sort((a,b)=>(a.cpr||99)-(b.cpr||99))
+        .map(a=>[a.name,a.adset,f$(a.spend),fn(a.results),fn(a.impressions),fn(a.reach),f$4(a.cpr)]), 6)}
+    ${sec('Age Breakdown — Sorted by CPR')}
+    ${tbl(['Age','Spend','Results','Impressions','Reach','CPR'],
+      [...D.age].sort((a,b)=>(a.cpr||99)-(b.cpr||99))
+        .map(a=>[a.seg,f$(a.spend),fn(a.results),fn(a.impressions),fn(a.reach),f$4(a.cpr)]), 5)}
+    ${sec('Gender Breakdown')}
+    ${tbl(['Gender','Spend','Results','Impressions','Reach','CPR'],
+      D.gender.map(g=>[g.seg,f$(g.spend),fn(g.results),fn(g.impressions),fn(g.reach),f$4(g.cpr)]), 5)}
+    <div style="margin-top:24px;padding-top:10px;border-top:1px solid #E2E5EB;font-size:9px;color:#B0B8C4;display:flex;justify-content:space-between">
+      <span>Robotna · robotna.org · Source: Analysis-Report.csv · Account 36890470</span>
+      <span>Created by Tawfeeq Alshobaki · No estimated values</span>
+    </div>
+  </div>`;
+
+  // ── Render pages to PDF via html2canvas ───────────────────────────────────
+  // unit:'mm' + format:'a4' → PW=210mm, PH=297mm
+  // HTML wrap is 794px = A4 width at 96dpi; scale:2 → canvas 1588px wide
+  // image ratio: 210mm / 1588px → fills full page width, proportional height
+  const { jsPDF } = window.jspdf;
+  const doc  = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+  const PW   = doc.internal.pageSize.getWidth();   // 210mm
+  const PH   = doc.internal.pageSize.getHeight();  // 297mm
+
+  const btn  = document.querySelector('.btn-navy');
+  const orig = btn ? btn.innerHTML : '';
+  if(btn) btn.innerHTML = '⏳ Generating…';
+
+  const container = document.createElement('div');
+  // Explicit width locks html2canvas to exactly 794px — prevents viewport-width capture
+  container.style.cssText = 'position:fixed;top:-9999px;left:-9999px;z-index:-1;width:794px;overflow:hidden';
+  document.body.appendChild(container);
+
+  const pages = [page1, page2];
+  let idx = 0;
+
+  function renderNext() {
+    if(idx >= pages.length) {
+      document.body.removeChild(container);
+      if(btn) btn.innerHTML = orig;
+      doc.save('Robotna_Campaign_Report_' + label.replace(/[^a-z0-9]/gi,'_') + '.pdf');
+      return;
+    }
+    container.innerHTML = pages[idx];
+    // Small delay so browser lays out Arabic text
+    setTimeout(() => {
+      html2canvas(container.firstChild, {
+        scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false,
+      }).then(canvas => {
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        // canvas.width = 1588px (794px × scale:2); PW = 210mm
+        // imgH in mm = canvas.height × (210 / 1588) = proportional to A4 width
+        const imgH = canvas.height / canvas.width * PW;
+        if(idx > 0) doc.addPage();
+        doc.addImage(imgData, 'JPEG', 0, 0, PW, imgH);
+        idx++;
+        renderNext();
+      });
+    }, 250);
+  }
+
+  renderNext();
+}
+
+// ══ PER-AD AUDIENCE ══════════════════════════════════════════════════════════
+// Uses D.adsAudience — computed from real CSV data, updates with date filter
+
+function initAdAudienceSelect() {
+  const sel = document.getElementById('ad-audience-select');
+  if(!sel) return;
+  while(sel.options.length > 1) sel.remove(1);
+  const counts = D.ads.reduce((m,a)=>(m[a.name]=(m[a.name]||0)+1,m), {});
+  D.ads.forEach(ad => {
+    const opt = document.createElement('option');
+    opt.value = ad.key;
+    opt.textContent = counts[ad.name] > 1 ? `${ad.name} · ${shortAdsetTag(ad.adset)}` : ad.name;
+    sel.appendChild(opt);
+  });
+}
+
+function setAdAudience(adKey) {
+  const panel = document.getElementById('ad-audience-panel');
+  if(!adKey) { panel.style.display='none'; return; }
+  const data = D.adsAudience[adKey];
+  if(!data || data.length===0) return;
+  panel.style.display='block';
+  const ad = D.ads.find(a=>a.key===adKey);
+  const maxR = Math.max(...data.map(d=>d.results), 1);
+  panel.innerHTML = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div>
+          <div class="card-label" style="margin-bottom:4px">Audience Breakdown</div>
+          <div style="font-size:14px;font-weight:700;color:#0D1526;direction:rtl">${ad ? ad.name : ''}</div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <div style="text-align:right">
+            <div class="card-label" style="margin-bottom:2px">Spend</div>
+            <div style="font-size:14px;font-weight:700;color:#E8410A;font-family:'DM Mono',monospace">${f$(ad.spend)}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="card-label" style="margin-bottom:2px">Results</div>
+            <div style="font-size:14px;font-weight:700;color:#0D2445;font-family:'DM Mono',monospace">${fn(ad.results)}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="card-label" style="margin-bottom:2px">CPR</div>
+            <div style="font-size:14px;font-weight:700;color:#0A7C52;font-family:'DM Mono',monospace">${f$4(ad.cpr)}</div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-bottom:0">
+        <div>
+          <div class="card-label">Age Distribution</div>
+          <div id="ad-age-chart-wrap" style="height:200px"><canvas id="chart-ad-age"></canvas></div>
+        </div>
+        <div>
+          <div class="card-label">CPR by Age — Ranked</div>
+          ${[...data].sort((a,b)=>a.cpr-b.cpr).map((row,i)=>`
+            <div class="age-rank-row">
+              <span class="age-seg">${row.seg}</span>
+              <div class="age-bar-wrap"><div class="age-bar" style="width:${Math.round(row.results/maxR*100)}%;background:${i===0?'#0A7C52':'#E8410A'}"></div></div>
+              <span class="age-cpr" style="color:${i===0?'#0A7C52':'#0D1526'}">${f$4(row.cpr)}</span>
+              ${i===0?'<span class="chip" style="color:#0A7C52;background:#ECFDF5;font-size:9px">Best</span>':''}
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="table-wrap" style="margin-top:16px">
+        <table id="table-ad-audience"></table>
+      </div>
+    </div>`;
+
+  // Draw mini chart
+  if(charts.adAge) charts.adAge.destroy();
+  requestAnimationFrame(()=>{
+    const canvas = document.getElementById('chart-ad-age');
+    if(!canvas) return;
+    charts.adAge = new Chart(canvas, {
+      type:'bar',
+      data:{ labels:data.map(d=>d.seg), datasets:[
+        {label:'Results',data:data.map(d=>d.results),backgroundColor:'#E8410A',borderRadius:3,barPercentage:.4},
+        {label:'Spend',  data:data.map(d=>d.spend),  backgroundColor:'#0D2445',borderRadius:3,barPercentage:.4},
+      ]},
+      options:{...chartOpts(), scales:{
+        x:{grid:{display:false},border:{display:false},ticks:{color:'#7A8595'}},
+        y:{grid:{color:'#EDF0F5'},border:{display:false},ticks:{color:'#7A8595',callback:v=>fnK(v)}},
+      }}
+    });
+  });
+
+  buildTable('table-ad-audience',[
+    {k:'seg',label:'Age'},
+    {k:'spend',label:'Spend',fmt:f$,r:true},
+    {k:'results',label:'Results',fmt:fn,r:true},
+    {k:'impressions',label:'Impressions',fmt:fn,r:true},
+    {k:'reach',label:'Reach',fmt:fn,r:true},
+    {k:'cpr',label:'CPR',fmt:f$4,r:true},
+  ], data, 'cpr');
+}
+
+// ══ TREND CHART — METRIC + ENTITY DROPDOWNS ══════════════════════════════════
+function populateTrendDropdowns() {
+  // Ad Sets
+  const adsetSel = document.getElementById('trend-adset');
+  if(!adsetSel) return;
+  while(adsetSel.options.length > 1) adsetSel.remove(1);
+  [...new Set(RAW_DATA.map(r=>r.adset))].sort().forEach(name => {
+    const o = document.createElement('option'); o.value=name; o.textContent=name; adsetSel.appendChild(o);
+  });
+  // Ads
+  const adSel = document.getElementById('trend-ad');
+  while(adSel.options.length > 1) adSel.remove(1);
+  [...new Set(RAW_DATA.map(r=>r.ad))].sort().forEach(name => {
+    const o = document.createElement('option'); o.value=name; o.textContent=name; adSel.appendChild(o);
+  });
+}
+
+function updateTrendChart() {
+  const metric   = document.getElementById('trend-metric')?.value   || 'cpr';
+  const adsetF   = document.getElementById('trend-adset')?.value    || '';
+  const adF      = document.getElementById('trend-ad')?.value       || '';
+
+  // Filter RAW_DATA by current date range + entity selectors
+  const rows = filterRows(currentRange.since, currentRange.until).filter(r => {
+    if(adF    && r.ad    !== adF)    return false;
+    if(adsetF && r.adset !== adsetF) return false;
+    return true;
+  });
+
+  // Group by day
+  const byDay = groupBy(rows, 'day');
+  const days  = Object.keys(byDay).sort();
+
+  // Metric configs
+  const METRICS = {
+    cpr:      { label:'Cost per Result ($)', color:'#0A7C52', fmt:f$4,  extract: g=>{ const a=agg(g); return a.cpr; } },
+    results:  { label:'Post Engagements',    color:'#E8410A', fmt:fn,   extract: g=>agg(g).results },
+    engrate:  { label:'Engagement Rate (%)', color:'#0D2445', fmt:v=>v==null?'—':v.toFixed(2)+'%',
+                extract: g=>{ const a=agg(g); return a.impressions>0?parseFloat((a.results/a.impressions*100).toFixed(2)):null; } },
+    frequency:{ label:'Frequency',           color:'#7C3AED', fmt:v=>v==null?'—':v.toFixed(2),
+                extract: g=>{ const a=agg(g); return a.reach>0?parseFloat((a.impressions/a.reach).toFixed(2)):null; } },
+  };
+
+  const cfg  = METRICS[metric] || METRICS.cpr;
+  const vals = days.map(d => cfg.extract(byDay[d]));
+
+  // Update chart labels
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const labels = days.map(d=>{ const dt=new Date(d+'T00:00:00'); return `${months[dt.getMonth()]} ${dt.getDate()}`; });
+
+  // Y-axis formatter
+  const yFmt = metric==='cpr' ? (v=>f$4(v))
+             : metric==='engrate' ? (v=>v.toFixed(2)+'%')
+             : metric==='frequency' ? (v=>v.toFixed(2))
+             : (v=>fnK(v));
+
+  const c = charts.weeklyCPR;
+  if(!c) return;
+  c.data.labels = labels;
+  c.data.datasets[0].data          = vals;
+  c.data.datasets[0].label         = cfg.label;
+  c.data.datasets[0].borderColor   = cfg.color;
+  c.data.datasets[0].backgroundColor = cfg.color + '1A';
+  c.data.datasets[0].pointBackgroundColor = cfg.color;
+  c.options.scales.y.ticks.callback = yFmt;
+  delete c.options.scales.y.min;
+  delete c.options.scales.y.max;
+  c.update();
+
+  // Update card label
+  const entityLabel = adF ? adF : adsetF ? adsetF : 'All';
+  document.getElementById('trend-chart-label').textContent =
+    `${cfg.label} — Day over Day${entityLabel!=='All'?' · '+entityLabel:''}`;
+
+  // Legend
+  const nonNull = vals.filter(v=>v!=null);
+  const minVal  = nonNull.length ? Math.min(...nonNull) : null;
+  const maxVal  = nonNull.length ? Math.max(...nonNull) : null;
+  const lastVal = nonNull.length ? nonNull[nonNull.length-1] : null;
+  const trend   = nonNull.length>1 ? (nonNull[nonNull.length-1] < nonNull[0] ? '↓ Improving' : '↑ Increasing') : '';
+  const trendColor = metric==='cpr'||metric==='frequency' ? (trend.startsWith('↓')?'#0A7C52':'#BE2B2B')
+                   : (trend.startsWith('↑')?'#0A7C52':'#BE2B2B');
+
+  document.getElementById('weekly-cpr-legend').innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="width:10px;height:10px;border-radius:50%;background:${cfg.color}"></div>
+      <span style="font-size:12px;color:#3D4A5C">Latest</span>
+      <span style="font-size:13px;font-weight:700;color:#0D1526;font-family:'DM Mono',monospace">${lastVal!=null?cfg.fmt(lastVal):'—'}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:12px;color:#7A8595">Min</span>
+      <span style="font-size:12px;font-weight:700;color:#0D1526;font-family:'DM Mono',monospace">${minVal!=null?cfg.fmt(minVal):'—'}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:12px;color:#7A8595">Max</span>
+      <span style="font-size:12px;font-weight:700;color:#0D1526;font-family:'DM Mono',monospace">${maxVal!=null?cfg.fmt(maxVal):'—'}</span>
+    </div>
+    ${trend?`<span class="chip" style="color:${trendColor};background:${trendColor}18">${trend}</span>`:''}`;
+}
+
+// ══ BOOT ══════════════════════════════════════════════════════════════════════
+
+function renderFindings() {
+  // const declarations don't attach to window — check with typeof, not window.FINDINGS
+  if (typeof FINDINGS === 'undefined' || !FINDINGS.length) return;
+  const panel = document.getElementById('findings-panel');
+  panel.innerHTML = '<div class="findings-card"><div class="findings-title">&#128269; Analyst Findings</div>'
+    + FINDINGS.map(f => '<div class="finding-item">'
+        + (f.date ? '<span class="finding-date">' + f.date + '</span>' : '')
+        + '<span class="finding-note">' + f.note.replace(/</g,'&lt;') + '</span>'
+        + '</div>').join('')
+    + '</div>';
+  panel.style.display = 'block';
+}
+
+window.addEventListener('DOMContentLoaded', ()=>{
+  // Seed date inputs from CAMPAIGN_META
+  document.getElementById('date-since').value = CAMPAIGN_META.since;
+  document.getElementById('date-until').value = CAMPAIGN_META.until;
+  // Sync all date labels from CAMPAIGN_META on first load
+  const label = `${prettyDate(CAMPAIGN_META.since)} – ${prettyDate(CAMPAIGN_META.until)}`;
+  document.getElementById('range-label').textContent = label;
+  document.getElementById('header-range').textContent = `robotna.org · ${label} · ${CAMPAIGN_META.goal}`;
+  document.getElementById('notice-range').textContent = `Reporting period: ${label}`;
+  document.getElementById('weekly-sub').textContent = label;
+  const s = prettyDate(CAMPAIGN_META.since).replace(', 2026',''), u = prettyDate(CAMPAIGN_META.until).replace(', 2026','');
+  document.getElementById('mob-range-label').textContent = `${s} – ${u}`;
+  initCharts();
+  document.getElementById('footer-range').textContent = `${label} · ${fn(D.core.results)} engagements · No estimated values`;
+  initAdAudienceSelect();
+  renderFindings();
+});
+</script>
+</body>
+</html>
